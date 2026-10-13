@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Workshop Kick-off</title>
+<meta name="description" content="Workshop kick-off: two prompts that take you from a clean project to a working, tested Salesforce feature in about an hour.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#f5f7f9;
+    --surface:#ffffff;
+    --surface-2:#eceff4;
+    --ink:#14181e;
+    --ink-2:#4c5563;
+    --ink-3:#737e8d;
+    --line:#dce1e8;
+    --line-2:#c4ccd7;
+    --accent:#a85c17;
+    --accent-ink:#8a4a10;
+    --accent-soft:#f8ecdd;
+    --accent-line:#e2c49f;
+    --go:#2c7350;
+    --go-ink:#1f5c3e;
+    --go-soft:#e3f0e9;
+    --go-line:#aed4c1;
+    --stop:#a33a30;
+    --stop-soft:#fae9e7;
+    --stop-line:#e8bdb7;
+
+    /* terminal / prompt blocks — dark in both themes */
+    --term-bg:#1e2227;
+    --term-line:#333a42;
+    --term-text:#d6dbe1;
+    --term-dim:#8d97a2;
+    --term-go:#8ed5a8;
+    --term-amber:#e3b474;
+
+    --font-display:'Archivo','Segoe UI',system-ui,-apple-system,sans-serif;
+    --font-body:'IBM Plex Sans','Segoe UI',system-ui,-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono',Consolas,'Courier New',monospace;
+
+    --radius:10px;
+    --maxw:1120px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#111419;--surface:#191d23;--surface-2:#222730;
+      --ink:#e8ebf0;--ink-2:#b0b9c6;--ink-3:#848e9c;
+      --line:#2a2f38;--line-2:#3a414c;
+      --accent:#eda257;--accent-ink:#f2b878;--accent-soft:#2e2316;--accent-line:#5c4426;
+      --go:#5fb98a;--go-ink:#8ad3aa;--go-soft:#16241d;--go-line:#2f5543;
+      --stop:#e8897e;--stop-soft:#2b1715;--stop-line:#5e2f2a;
+      --term-bg:#0f1216;--term-line:#272d34;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#111419;--surface:#191d23;--surface-2:#222730;
+    --ink:#e8ebf0;--ink-2:#b0b9c6;--ink-3:#848e9c;
+    --line:#2a2f38;--line-2:#3a414c;
+    --accent:#eda257;--accent-ink:#f2b878;--accent-soft:#2e2316;--accent-line:#5c4426;
+    --go:#5fb98a;--go-ink:#8ad3aa;--go-soft:#16241d;--go-line:#2f5543;
+    --stop:#e8897e;--stop-soft:#2b1715;--stop-line:#5e2f2a;
+    --term-bg:#0f1216;--term-line:#272d34;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:var(--font-body);font-size:16px;line-height:1.62;
+    -webkit-font-smoothing:antialiased;padding-bottom:104px;
+  }
+  [hidden]{display:none !important}
+  :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:4px}
+  a{color:var(--accent-ink)}
+
+  /* ---------- deck chrome ---------- */
+  .topbar{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:40;
+    background:var(--ground);
+    background:color-mix(in srgb, var(--ground) 92%, transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+  }
+  .topbar-in{max-width:var(--maxw);margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+  .brand{font-family:var(--font-display);font-weight:700;font-size:.95rem;letter-spacing:-.01em;margin-right:auto}
+  .brand span{color:var(--ink-3);font-weight:500}
+  .counter{font-family:var(--font-mono);font-size:.78rem;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .progress{height:3px;background:var(--line);overflow:hidden}
+  .progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .35s ease}
+
+  main{max-width:var(--maxw);margin:0 auto;padding:0 16px;padding-block:34px 10px}
+
+  .slide{animation:rise .32s ease both}
+  @keyframes rise{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){.slide{animation:none}*{transition-duration:.01ms !important}}
+
+  .eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 10px}
+  .eyebrow.is-you{color:var(--accent)}
+  h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.95rem,1.25rem + 2.6vw,3rem);line-height:1.08;letter-spacing:-.025em;margin:0 0 16px;text-wrap:balance}
+  h2{font-family:var(--font-display);font-weight:600;font-size:clamp(1.5rem,1.15rem + 1.5vw,2.1rem);line-height:1.15;letter-spacing:-.02em;margin:0 0 14px;text-wrap:balance}
+  h3{font-family:var(--font-display);font-weight:600;font-size:1.05rem;letter-spacing:-.01em;margin:0 0 6px}
+  p{margin:0 0 14px;max-width:66ch}
+  .lede{font-size:1.1rem;color:var(--ink-2);max-width:64ch}
+  .fine{font-size:.9rem;color:var(--ink-3)}
+  strong{font-weight:600}
+  code{font-family:var(--font-mono);font-size:.88em;background:var(--surface-2);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+
+  .stack{display:flex;flex-direction:column;gap:22px}
+  .cols{display:grid;gap:22px}
+  @media (min-width:860px){
+    .cols-2{grid-template-columns:1fr 1fr}
+    .cols-3{grid-template-columns:repeat(3,1fr)}
+    .cols-side{grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);align-items:start}
+  }
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;min-width:0}
+  .card p:last-child{margin-bottom:0}
+  .card--you{border-color:var(--accent-line);background:var(--accent-soft)}
+  .card--go{border-color:var(--go-line);background:var(--go-soft)}
+  .card .big{font-family:var(--font-display);font-weight:700;font-size:2rem;line-height:1;margin:2px 0 8px;letter-spacing:-.02em}
+
+  .tag{display:inline-block;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:99px;border:1px solid var(--line-2);color:var(--ink-3);white-space:nowrap}
+  .tag--you{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent-ink)}
+  .tag--auto{background:var(--surface-2)}
+  .tag--go{border-color:var(--go-line);background:var(--go-soft);color:var(--go)}
+
+  /* journey */
+  .journey{display:flex;flex-direction:column}
+  .leg{display:grid;grid-template-columns:34px 1fr auto;gap:16px;align-items:start;padding:13px 0;border-bottom:1px solid var(--line)}
+  .leg:last-child{border-bottom:0}
+  .leg-mark{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line-2);background:var(--surface);font-family:var(--font-mono);font-size:.78rem;color:var(--ink-3);position:relative}
+  .leg.is-you .leg-mark{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+  .leg-mark::after{content:"";position:absolute;top:34px;left:50%;width:1px;height:calc(100% + 13px);background:var(--line);transform:translateX(-.5px)}
+  .leg:last-child .leg-mark::after{display:none}
+  .leg h3{margin-bottom:2px}
+  .leg p{margin:0;font-size:.93rem;color:var(--ink-2);max-width:60ch}
+  @media (max-width:560px){.leg{grid-template-columns:34px 1fr}.leg .tag{grid-column:2;justify-self:start}}
+
+  /* buttons */
+  .btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+  .btn{font:inherit;font-family:var(--font-display);font-weight:600;font-size:.92rem;border-radius:8px;padding:9px 16px;cursor:pointer;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);text-decoration:none;display:inline-block}
+  .btn:hover{border-color:var(--ink-3)}
+  .btn--primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn--primary:hover{filter:brightness(1.06)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:11px 14px;border-radius:0 8px 8px 0;font-size:.93rem;color:var(--ink-2)}
+  .note strong{color:var(--ink)}
+  .note--go{border-left-color:var(--go);background:var(--go-soft)}
+  .warn{border:1px solid var(--stop-line);background:var(--stop-soft);border-radius:9px;padding:11px 14px;font-size:.92rem;color:var(--ink-2)}
+  .warn b{color:var(--stop);display:block;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;font-family:var(--font-mono);margin-bottom:3px}
+
+  ul.plain{margin:0;padding-left:18px}
+  ul.plain li{margin-bottom:7px}
+  ul.plain li::marker{color:var(--ink-3)}
+  ol.steps{margin:0;padding-left:22px}
+  ol.steps li{margin-bottom:9px;padding-left:3px}
+  ol.steps li::marker{font-family:var(--font-mono);font-size:.85em;color:var(--accent-ink)}
+
+  .kv{display:grid;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+  .kv-row{display:grid;grid-template-columns:1fr;gap:2px;padding:12px 15px;border-bottom:1px solid var(--line)}
+  @media (min-width:700px){.kv-row{grid-template-columns:260px 1fr;gap:18px;align-items:baseline}}
+  .kv-row:last-child{border-bottom:0}
+  .kv-k{font-weight:600;font-size:.93rem}
+  .kv-v{font-size:.93rem;color:var(--ink-2)}
+
+  /* personal details */
+  .setupbox{background:var(--surface);border:1.5px solid var(--accent-line);border-radius:var(--radius);padding:17px 19px}
+  .setupbox h3{margin-bottom:3px}
+  .fields{display:grid;gap:12px;margin-top:13px}
+  @media (min-width:700px){.fields{grid-template-columns:1fr 1fr}}
+  .field label{display:block;font-size:.82rem;font-weight:600;margin-bottom:4px}
+  .field label em{font-style:normal;color:var(--ink-3);font-weight:400}
+  .field input{width:100%;font:inherit;font-family:var(--font-mono);font-size:.85rem;padding:8px 11px;border:1px solid var(--line-2);border-radius:7px;background:var(--ground);color:var(--ink)}
+  .field input:focus{border-color:var(--accent);outline:none}
+  .field .fhint{font-size:.78rem;color:var(--ink-3);margin-top:4px;font-family:var(--font-mono)}
+  .status{font-family:var(--font-mono);font-size:.78rem;margin-top:12px;color:var(--ink-3)}
+  .status.ok{color:var(--go)}
+
+  /* checklist */
+  .checks{display:flex;flex-direction:column;gap:8px}
+  .check{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:11px 13px;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+  .check .box{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--line-2);display:grid;place-items:center;font-size:.8rem;color:#fff;flex:none;margin-top:1px}
+  .check[aria-pressed="true"]{border-color:var(--go-line);background:var(--go-soft)}
+  .check[aria-pressed="true"] .box{background:var(--go);border-color:var(--go)}
+  .check[aria-pressed="true"] .box::after{content:"✓"}
+  .check b{display:block;font-weight:600;font-size:.94rem}
+  .check span.d{font-size:.88rem;color:var(--ink-2)}
+
+  /* prompt block */
+  .cmd{background:var(--term-bg);border:1px solid var(--term-line);border-radius:9px;overflow:hidden;min-width:0}
+  .cmd-top{display:flex;align-items:center;gap:9px;padding:7px 11px;border-bottom:1px solid var(--term-line);font-family:var(--font-mono);font-size:.67rem;letter-spacing:.09em;text-transform:uppercase;color:var(--term-dim)}
+  .cmd-top .where{margin-right:auto}
+  .copy{font:inherit;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;background:var(--accent);border:1px solid var(--accent);color:#fff;border-radius:5px;padding:3px 11px;cursor:pointer}
+  .copy:hover{filter:brightness(1.08)}
+  .copy.ok{background:transparent;color:var(--term-go);border-color:var(--term-go)}
+  .cmd pre{margin:0;padding:12px 14px;overflow:auto;max-height:430px;font-family:var(--font-mono);font-size:.78rem;line-height:1.7;color:var(--term-text);white-space:pre-wrap;overflow-wrap:anywhere}
+  .cmd pre .ph{color:var(--term-amber);font-weight:500}
+  .cmd pre .ph.set{color:var(--term-go)}
+  .copywarn{font-family:var(--font-mono);font-size:.74rem;color:var(--stop);margin-top:8px}
+
+  /* interview rounds */
+  .rounds{display:grid;gap:12px}
+  @media (min-width:760px){.rounds{grid-template-columns:repeat(2,1fr)}}
+  @media (min-width:1040px){.rounds{grid-template-columns:repeat(3,1fr)}}
+  .round{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .round h3{font-size:.98rem;margin-bottom:8px}
+  .round ol{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+  .round li{font-size:.88rem;color:var(--ink-2);display:grid;grid-template-columns:30px 1fr;gap:6px}
+  .round li .q{font-family:var(--font-mono);font-size:.74rem;color:var(--ink-3);padding-top:2px}
+  .round li.grow{color:var(--ink)}
+  .round li.grow .q{color:var(--accent-ink);font-weight:500}
+
+  /* links */
+  .linkcards{display:grid;gap:12px}
+  @media (min-width:760px){.linkcards{grid-template-columns:1fr 1fr}}
+  .linkcard{display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+  .linkcard:hover{border-color:var(--accent)}
+  .linkcard .arrow{color:var(--accent);font-family:var(--font-mono)}
+
+  /* bottom nav */
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--ground);background:color-mix(in srgb, var(--ground) 94%, transparent);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+  .nav-in{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;gap:14px}
+  .dots-nav{display:flex;gap:5px;flex-wrap:wrap;margin:0 auto}
+  .dot{width:9px;height:9px;border-radius:50%;border:0;background:var(--line-2);cursor:pointer;padding:0}
+  .dot[aria-current="true"]{background:var(--accent);transform:scale(1.25)}
+  .dot.is-you{box-shadow:inset 0 0 0 2px var(--accent)}
+  @media (max-width:620px){.dots-nav{display:none}}
+  .hint{font-size:.82rem;color:var(--ink-3);font-family:var(--font-mono)}
+  @media (max-width:620px){.nav .hint{display:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">Workshop kick-off <span>· two prompts, one hour</span></div>
+    <div class="counter"><span id="cur">1</span>/<span id="tot">10</span></div>
+  </div>
+  <div class="progress"><i id="bar"></i></div>
+</header>
+
+<main id="deck">
+
+  <!-- 1 Welcome ........................................................ -->
+  <section class="slide" data-title="Welcome">
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Workshop kick-off</p>
+        <h1>From a clean project to a working<br>Salesforce feature — in about an hour.</h1>
+        <p class="lede">Today every one of you builds the same thing: an <strong>equipment lending register</strong> for an office — what we own, who has what right now, what is overdue, and a guarantee that nothing is handed out twice.</p>
+        <p class="lede">You will run two prompts. The first teaches the agent about your environment. The second runs the full task — interview, design, approval, build, tests, review and handover.</p>
+      </div>
+      <div class="cols cols-3">
+        <div class="card">
+          <p class="eyebrow" style="margin-bottom:4px">Step 0</p>
+          <h3>Check your setup</h3>
+          <p class="fine" style="margin:0">VS Code, Claude Code, a connected practice org. Two minutes.</p>
+        </div>
+        <div class="card">
+          <p class="eyebrow" style="margin-bottom:4px">Prompt A · ~10–15 min</p>
+          <h3>Warm-up</h3>
+          <p class="fine" style="margin:0">The agent inspects your org and tools and writes what it learns into project memory.</p>
+        </div>
+        <div class="card card--you">
+          <p class="eyebrow is-you" style="margin-bottom:4px">Prompt B · ~60–75 min</p>
+          <h3>The task</h3>
+          <p class="fine" style="margin:0">You answer its questions, approve its plan, and it builds the feature end to end.</p>
+        </div>
+      </div>
+      <div class="btnrow">
+        <button class="btn btn--primary" data-go="1">Let's start →</button>
+      </div>
+      <p class="hint">Tip: use ← and → to move through the slides. Every prompt has a Copy button.</p>
+    </div>
+  </section>
+
+  <!-- 2 Setup ......................................................... -->
+  <section class="slide" data-title="Before you start" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow is-you">Step 0 · your turn</p>
+        <h2>Before you start</h2>
+        <p class="lede">Tick these off. If anything is missing, the <a href="AI-AGENTS-USER-GUIDE.html">setup guide</a> walks you through it.</p>
+      </div>
+      <div class="cols cols-side">
+        <div class="checks" id="checks">
+          <button class="check" type="button" aria-pressed="false"><span class="box"></span><span><b>The project is open in VS Code</b><span class="d">The workshop project folder, opened with File → Open Folder.</span></span></button>
+          <button class="check" type="button" aria-pressed="false"><span class="box"></span><span><b>The Claude Code panel is open</b><span class="d">The chat panel on the right. A new, empty conversation.</span></span></button>
+          <button class="check" type="button" aria-pressed="false"><span class="box"></span><span><b>Your practice org is connected</b><span class="d">A sandbox or scratch org — never the live system. If unsure, run <code>sf org list</code> in the VS Code terminal.</span></span></button>
+          <button class="check" type="button" aria-pressed="false"><span class="box"></span><span><b>You are on the main branch, with no changes</b><span class="d">The status bar at the bottom shows <code>main</code>.</span></span></button>
+        </div>
+        <div class="setupbox">
+          <h3>Your details</h3>
+          <p class="fine" style="margin:0">Type them once — they are filled into both prompts for you, so what you copy is ready to run. Nothing leaves this page.</p>
+          <div class="fields">
+            <div class="field">
+              <label for="in-org">Org alias <em>(your practice org)</em></label>
+              <input type="text" id="in-org" placeholder="e.g. ws-sandbox" autocomplete="off" spellcheck="false">
+              <div class="fhint">the name shown by <code>sf org list</code></div>
+            </div>
+            <div class="field">
+              <label for="in-ini">Your initials <em>(2–6 letters)</em></label>
+              <input type="text" id="in-ini" placeholder="e.g. AL" maxlength="6" autocomplete="off" spellcheck="false">
+              <div class="fhint">your task becomes <code id="taskid">WS-…</code></div>
+            </div>
+          </div>
+          <div class="status" id="fillstatus">Not filled yet — the prompts show amber placeholders.</div>
+        </div>
+      </div>
+      <div class="note"><strong>Not connected?</strong> In the VS Code terminal run <code>sf org login web -a <span class="echo-org">&lt;your-alias&gt;</span></code>, log in to your sandbox in the browser, and come back.</div>
+    </div>
+  </section>
+
+  <!-- 3 Prompt A ...................................................... -->
+  <section class="slide" data-title="Prompt A — warm-up" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow is-you">Prompt A · your turn · ~10–15 minutes</p>
+        <h2>Warm-up: teach the agent your environment</h2>
+        <p class="lede">Your project is clean, so the agent knows nothing about your org yet. This prompt has it look around once — tools, org, existing code — and write the findings into <strong>project memory</strong>. It builds nothing and changes nothing in Salesforce.</p>
+      </div>
+      <div class="cols cols-side">
+        <div class="stack">
+          <div class="card">
+            <h3>How to run it</h3>
+            <ol class="steps" style="margin-top:8px">
+              <li>Fill in your details on the previous slide.</li>
+              <li>Click <strong>Copy prompt</strong>.</li>
+              <li>Paste into the Claude Code panel and press Enter.</li>
+              <li>If it asks permission to run a command, read it and allow it.</li>
+              <li>Wait for its <strong>10-line summary</strong>. Read it — especially the last line, "anything that blocks the workshop task".</li>
+            </ol>
+          </div>
+          <div class="warn"><b>It will stop if…</b>your org is not a sandbox or scratch org, or a required tool is missing. Tell the facilitator — do not work around it.</div>
+          <div class="note">This is a plain prompt, <strong>not</strong> <code>/sf-task</code>. It does not create a branch or commit; the task in Prompt B picks the memory up and saves it.</div>
+        </div>
+        <div>
+          <div class="cmd">
+            <div class="cmd-top"><span class="where">paste into Claude Code</span><button class="copy" type="button">Copy prompt</button></div>
+<pre>Workshop warm-up: bootstrap project memory. Do NOT run /sf-task, do not create a branch, do not deploy, do not commit. Work directly in this session, no sub-agents. You act as the orchestrator for memory writes only. Target org alias: <span class="ph" data-ph="ORG_ALIAS">&lt;ORG_ALIAS&gt;</span>.
+
+Goal: fill agent-memory/ (format and rules: docs/agent-memory.md) so the first /sf-task run does not rediscover the environment. One fact per line, tagged [&lt;today&gt; | WARMUP | &lt;method&gt;]. Each topic file gets frontmatter. Never record credentials, usernames, emails, org or record Ids, or personal data. Use the Write/Edit tools, not shell redirection.
+
+1. Environment → agent-memory/environment.md
+   - Run node .claude/scripts/check-tools.js and node .claude/scripts/sf-skills-sync.js --check. If either fails, stop and tell me.
+   - Run git remote -v. Record the remote name; it may not be "origin".
+   - LWC Jest: does node_modules/@salesforce/sfdx-lwc-jest exist? Are python3 and jq available? Record the consequences:
+     - without Jest, LWC verification is ESLint plus an in-org check;
+     - experience-lwc-security-validate and dx-apexguru-scan need jq/python3;
+     - the Code Analyzer flow engine needs Python.
+   - Compare sfdx-project.json sourceApiVersion with the org API version. Record the policy: new components carry the org version, deploy with --api-version &lt;org version&gt;, project file unchanged.
+   - Flow: automation-flow-generate needs the MCP tool execute_metadata_action. If it is not available in this session, record "Flow is not a buildable tool choice here".
+2. Org → agent-memory/org.md. Use node .claude/scripts/sf.js for every command, and apply pitfall 1 below for quoted queries.
+   - Run org display. Query Organization: IsSandbox, OrganizationType, TimeZoneSidKey, LanguageLocaleKey. STOP if this is not a sandbox or scratch org.
+   - Source tracking: run project retrieve preview and record whether the org is tracked.
+   - UserLicense WHERE TotalLicenses &gt; 0: are there free full Salesforce seats? Does the profile "Minimum Access - Salesforce" exist?
+   - Installed packages (tooling InstalledSubscriberPackage).
+   - Unmanaged metadata (NamespacePrefix = null): counts and name families only, for ApexClass, ApexTrigger, active flows, custom objects and permission sets.
+   - ApexOrgWideCoverage.PercentCovered (tooling).
+   - Are names starting with Equipment / Loan / Employee free? Check objects, Apex classes, triggers, permission sets, apps and tabs.
+3. Codebase → agent-memory/codebase.md
+   - Record what force-app contains.
+   - If the repo has no trigger framework or test factory, read one unmanaged trigger handler body in the org (tooling ApexClass.Body) and record the incumbent pattern. Otherwise record "no incumbent pattern".
+4. Pitfalls → agent-memory/pitfalls.md
+   - Copy the list below, one line each, tagged [&lt;today&gt; | WARMUP | human] (source: the facilitator's dry run).
+   - Then add anything you hit yourself today, with its own method tag.
+   1. sf.js on Windows splits quoted multi-word values. Wrap them in literal double quotes inside single quotes, e.g. --query '"SELECT Id FROM Organization"'.
+   2. sf.js allows only: data query, apex run/get test, project deploy start/validate/report/preview, project retrieve start/preview, sobject describe/list, org display/list, org assign permset. Its sobject describe and org list metadata output is truncated; use EntityDefinition / FieldDefinition queries instead.
+   3. EntityDefinition queries reject OR. Use InternalSharingModel / ExternalSharingModel; there is no DefaultSharingModel column.
+   4. Run Code Analyzer directly, not via sf.js (the wrapper forces --json): sf code-analyzer run --workspace &lt;path&gt; --rule-selector Recommended --severity-threshold 2.
+   5. PMD EagerlyLoadedDescribeSObjectResult is High severity and blocks the edit hook. Use getDescribe(SObjectDescribeOptions.DEFERRED).
+   6. Newly deployed custom fields have no field-level security for anyone, including System Administrator. CLI queries fail with "No such column" until a permission set grants the field. USER_MODE queries, "as user" DML, FeatureManagement.checkPermission and $Permission rules evaluate the context user.
+   7. Test pattern: System.runAs applies sharing only, not object or field permissions.
+      - In @TestSetup, tests create their own System Administrator user that holds the feature's permission set, and run every arrange and assert step in runAs(that user).
+      - Persona users run in separate, non-nested runAs blocks.
+      - Setup-object DML goes inside runAs(new User(Id = UserInfo.getUserId())).
+      - Never rely on the running user's permission sets.
+   8. project deploy validate rejects --test-level NoTestRun. Use RunSpecifiedTests --tests &lt;class&gt;.
+   9. CreatedDate cannot be placed on a page layout; use CreatedById, which shows the name and date. Related lists and list views use CREATEDBY_USER and CREATED_DATE, never CREATEDBY_ID.
+   10. Apex that references Label.* must deploy together with, or after, the labels. A failed deploy rolls back everything.
+   11. A matching rule activates about a minute after deploy. Its duplicate rule deploys only after MatchingRule.RuleStatus = Active.
+   12. A unique-field violation returns DUPLICATE_VALUE; an active duplicate rule returns DUPLICATES_DETECTED.
+   13. DateTime fields drop milliseconds; allow a one-second margin in test assertions.
+   14. sf template generate is blocked by the shell hook. Specify metadata fully and check it with project deploy validate. A FlexiPage references a custom LWC as c:&lt;name&gt;.
+   15. The platform "Analytics Cloud Integration User" profile automatically gets Read on new custom objects. Mention it whenever promising that only certain users can see data.
+   16. Sample org metadata with: sf.js project retrieve start -m "&lt;Type:Name&gt;" --output-dir &lt;scratchpad&gt;. Never retrieve into force-app.
+5. Update the agent-memory/MEMORY.md index: one line per topic file, no facts in the index.
+6. Show me a summary of at most 10 lines:
+   - org type
+   - free seats
+   - coverage
+   - names free yes/no
+   - toolchain gaps
+   - anything that blocks the workshop task</pre>
+          </div>
+          <div class="copywarn" hidden>Copied — but your org alias is still a placeholder. Fill it in on slide 2 and copy again.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 Why memory .................................................... -->
+  <section class="slide" data-title="What the warm-up buys you" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Why bother</p>
+        <h2>What the warm-up buys you</h2>
+        <p class="lede">The agents read project memory before they do anything else. Memory is the difference between a team that has worked here before and one that turns up on day one.</p>
+      </div>
+      <div class="cols cols-3">
+        <div class="card">
+          <p class="big">~3 h</p>
+          <h3>Our dry run, no memory</h3>
+          <p class="fine" style="margin:0">The first full run of this task — with a richer feature and an empty memory — took about three hours of agent time.</p>
+        </div>
+        <div class="card">
+          <p class="big">16</p>
+          <h3>Traps already mapped</h3>
+          <p class="fine" style="margin:0">Tool quirks, deploy errors and test patterns the dry run tripped over. One of them alone cost a 30-minute fix round.</p>
+        </div>
+        <div class="card card--go">
+          <p class="big">~1 h</p>
+          <h3>Today's target</h3>
+          <p class="fine" style="margin:0">A leaner feature, a streamlined process, and a memory that already knows your org.</p>
+        </div>
+      </div>
+      <div class="kv">
+        <div class="kv-row"><span class="kv-k">agent-memory/org.md</span><span class="kv-v">What kind of org this is, its version, time zone, spare licences, installed packages, what already exists in it.</span></div>
+        <div class="kv-row"><span class="kv-k">agent-memory/environment.md</span><span class="kv-v">Which tools are present or missing on your machine, and the standing rules that follow from that.</span></div>
+        <div class="kv-row"><span class="kv-k">agent-memory/codebase.md</span><span class="kv-v">The conventions new code must follow, so what gets built fits in.</span></div>
+        <div class="kv-row"><span class="kv-k">agent-memory/pitfalls.md</span><span class="kv-v">Known traps and their fixes — the facilitator's list plus anything new your agent hits.</span></div>
+      </div>
+      <div class="note note--go"><strong>Memory grows with every task.</strong> Each task adds what it learned, so the next one — yours or a colleague's — starts further ahead.</div>
+    </div>
+  </section>
+
+  <!-- 5 Prompt B ...................................................... -->
+  <section class="slide" data-title="Prompt B — the task" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow is-you">Prompt B · your turn · ~60–75 minutes of agent time</p>
+        <h2>The task: an equipment lending register</h2>
+        <p class="lede">This starts the full workflow with <code>/sf-task</code>. The prompt describes the business need, gives the agent a scripted interview to run with you, and tells it how to keep the process lean enough for one hour.</p>
+      </div>
+      <div class="cols cols-side">
+        <div class="stack">
+          <div class="card">
+            <h3>How to run it</h3>
+            <ol class="steps" style="margin-top:8px">
+              <li>Wait until Prompt A has printed its summary.</li>
+              <li>Start a <strong>new conversation</strong> in the Claude Code panel — a clean context for the task.</li>
+              <li>Click <strong>Copy prompt</strong>, paste, press Enter.</li>
+              <li>Answer the interview questions as they appear (next slide).</li>
+              <li>Confirm the org, the branch and the base branch when asked.</li>
+              <li>Approve the plan — then it runs on its own.</li>
+            </ol>
+          </div>
+          <div class="note"><strong>Stay near the screen for the first ~20 minutes.</strong> That is where all your moments are. After the approval you can step away.</div>
+        </div>
+        <div>
+          <div class="cmd">
+            <div class="cmd-top"><span class="where">new conversation · paste into Claude Code</span><button class="copy" type="button">Copy prompt</button></div>
+<pre>/sf-task Task: WS-<span class="ph" data-ph="INITIALS">&lt;INITIALS&gt;</span>. Org: <span class="ph" data-ph="ORG_ALIAS">&lt;ORG_ALIAS&gt;</span>. Base branch: main. Title: Equipment lending register (lean).
+
+Our office lends company equipment to employees: laptops, projectors, test devices, tools. Today it is a spreadsheet at reception and things go missing. We want a register of the equipment we own and who has what right now. Reception must be able to hand an item out and take it back, and see which items are overdue. An item that is already out must not be handed out to someone else until it has been returned.
+
+BUSINESS DISCOVERY INTERVIEW (Phase 0.1b). Run it exactly as scripted below.
+- Ask every question through the interactive question tool, in the rounds shown (3 questions per call).
+- Use the options as written: the first option is the recommended one and is labelled "(Recommended)"; the text after the dash is the option's description.
+- Do not skip a question because the request seems to answer it, and do not add business questions unless an answer leaves a real gap.
+- If I choose a non-recommended option or "Other", follow my answer. Tell me in one plain sentence that it makes the build bigger, then continue.
+- Record every question and answer verbatim in request/01-clarifications.md.
+- Then write the scope document. Its "What is NOT part of this" includes the defaults listed after the questions, unless an answer brought one into scope.
+- Read the scope back to me in one question, then do the mandatory confirmations (org, branch, base branch).
+
+Round 1: people
+Q1. Who will use this in Salesforce, and who keeps the equipment register up to date?
+  - Reception + office manager (Recommended) — reception hands out and takes back; one office manager adds equipment and retires items; reception cannot change the register.
+  - Reception does everything — simpler access, but anyone at reception can change or remove items.
+  - Several teams — more teams lend equipment; each needs the same access.
+Q2. Do the employees who borrow equipment have their own Salesforce login?
+  - No, most don't (Recommended) — we keep a simple list of employee names; reception can add a new name on the spot.
+  - Yes, everyone has a login — reception picks from Salesforce users; people without a login cannot borrow.
+Q3. Do employees need to see anything themselves?
+  - No, staff only (Recommended) — only reception and the office manager use it.
+  - Yes, they see what they hold — needs logins for every employee and an extra screen.
+
+Round 2: the lending process
+Q4. How does an item become "overdue"?
+  - Return date per hand-out (Recommended) — reception enters a return date each time; the item is overdue the day after if not back.
+  - Same loan period for all — a fixed number of days for every item.
+  - Return date optional — long-term loans have no date and are never overdue.
+Q5. Do you want a history of who had each item, or only who has it now?
+  - Keep full history (Recommended) — every hand-out and return is kept: who, when, and who at reception handled it.
+  - Only the current holder — past loans are not kept.
+Q6. Should anyone be reminded automatically about overdue items?
+  - No, a list is enough (Recommended) — reception sees an overdue list and follows up; no emails.
+  - Email the borrower — needs an email address for every employee.
+  - Daily email to reception — a summary email in addition to the list.
+
+Round 3: rules and mistakes
+Q7. What happens when an item is lost, broken or no longer used?
+  - Office manager retires it (Recommended) — it stays in the register but can no longer be handed out.
+  - Not needed now — items are only ever available or out.
+Q8. If someone records a hand-out or return by mistake, who fixes it?
+  - Reception or office manager, history shows it (Recommended) — both can edit a loan; every change is recorded with who and when. Simplest.
+  - Only the office manager — reception can only hand out and take back; needs an extra rule and special access (bigger build).
+Q9. When someone tries to hand out an item that is already out, what must they see?
+  - A refusal is enough (Recommended) — the save is blocked with a standard "duplicate" message.
+  - A message naming who has it — "already out with &lt;name&gt;"; needs extra programming (bigger build).
+
+Round 4: the screen and the data
+Q10. What should reception work in?
+  - Standard Salesforce pages (Recommended) — item and loan pages with buttons and ready-made lists; fastest to build.
+  - A custom reception screen — one page with search-as-you-type and status per item; roughly doubles the build.
+Q11. How does reception find the right item?
+  - Search by asset tag or name (Recommended) — Salesforce's standard search; no scanner needed.
+  - Barcode scanning — needs scanners and labels on every item; a bigger build.
+Q12. What about the items in today's spreadsheet?
+  - Enter or import later, not in this build (Recommended) — entered by hand or imported by an administrator with standard tools after go-live.
+  - Include a one-time import — you provide the file; adds clean-up and loading work.
+
+Round 5: scale, place, done
+Q13. How much equipment and activity are we talking about?
+  - Hundreds of items, a few loans a day (Recommended) — up to a few hundred items and employees, a handful of hand-outs per day.
+  - Thousands of items, dozens a day — needs extra attention to search and volumes.
+Q14. Where should reception find this in Salesforce?
+  - Its own Equipment app (Recommended) — a separate app with tabs for items, employees and loans.
+  - Inside an existing app — tell us which one.
+Q15. How will you check that it is done?
+  - Walk-through in the sandbox (Recommended) — add an item, hand it out, see a second hand-out refused, take it back, see an overdue loan, retire an item.
+  - Walk-through, then reception tries it for a few days — the same, plus a trial period before sign-off.
+
+Default "not part of this" (state these in the scope; do not ask):
+- quantities or stock counts
+- condition or damage notes
+- booking in advance
+- reports and dashboards beyond the lists
+- a mobile layout
+- deleting loans
+- a separate "asset tag already used" message (the unique tag check is enough)
+
+HOW TO RUN THE REST OF THIS TASK. These are my decisions as the owner, to keep total agent time near one hour:
+1. Discovery: project memory is pre-filled; reuse it. Verify only what this design depends on: names free, no automation on objects you touch, licence facts. Do not inventory unrelated org metadata.
+2. Brief: at most 2 pages, simplest design that meets the confirmed scope, declarative first.
+   - I waive these defaults: the permission-persona test matrix (keep the one mandatory negative permission test), LDV/archival planning, and separate selector/service/constants classes where one small class is enough.
+   - Use Apex only for what declarative tools cannot do (with the recommended answers: only the one-open-loan guarantee). No Flow.
+3. Critic: round 1 on the brief only. The architect resolves the gaps. No round 2 unless round 1 finds a G1.
+4. Detailed design: compact, at most 2 pages. Specify only what the brief does not already fix, in at most 2 work packages (3 if I chose a custom screen). Buildability check in a single pass.
+5. Build: tests first. Use the test-user pattern in agent-memory/pitfalls.md: tests create their own admin and persona users and never rely on the running user's permission sets.
+6. Review: send only S1/S2 findings back to the developer. List S3/S4 in the final report instead of fixing them. Stop after round 1 if the verdict is APPROVE or APPROVE WITH CHANGES.
+7. Handover: deployment package as standard. Administrator and user guides at most 1 page each.</pre>
+          </div>
+          <div class="copywarn" hidden>Copied — but your org alias or initials are still placeholders. Fill them in on slide 2 and copy again.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 Interview ..................................................... -->
+  <section class="slide" data-title="The interview" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow is-you">Inside Prompt B · your turn · ~10 minutes</p>
+        <h2>The interview you are about to have</h2>
+        <p class="lede">Fifteen questions in five screens, three at a time. Each has a suggested answer first, marked <em>(Recommended)</em>. There is always an "Other" if none fits.</p>
+      </div>
+      <div class="rounds">
+        <div class="round"><h3>1 · People</h3><ol>
+          <li><span class="q">Q1</span>Who uses it and who maintains the register</li>
+          <li><span class="q">Q2</span>Do borrowers have Salesforce logins</li>
+          <li><span class="q">Q3</span>Do employees see anything themselves</li></ol></div>
+        <div class="round"><h3>2 · The lending process</h3><ol>
+          <li><span class="q">Q4</span>When an item counts as overdue</li>
+          <li><span class="q">Q5</span>Full history, or only the current holder</li>
+          <li><span class="q">Q6</span>Automatic reminders or not</li></ol></div>
+        <div class="round"><h3>3 · Rules and mistakes</h3><ol>
+          <li><span class="q">Q7</span>Lost, broken and retired items</li>
+          <li class="grow"><span class="q">Q8</span>Who fixes a mistaken entry</li>
+          <li class="grow"><span class="q">Q9</span>What a refused double hand-out shows</li></ol></div>
+        <div class="round"><h3>4 · The screen and the data</h3><ol>
+          <li class="grow"><span class="q">Q10</span>Standard pages or a custom screen</li>
+          <li><span class="q">Q11</span>Search or barcode scanning</li>
+          <li><span class="q">Q12</span>Importing today's spreadsheet</li></ol></div>
+        <div class="round"><h3>5 · Scale, place, done</h3><ol>
+          <li><span class="q">Q13</span>How much equipment and activity</li>
+          <li><span class="q">Q14</span>Which app it lives in</li>
+          <li><span class="q">Q15</span>How you will check it is done</li></ol></div>
+        <div class="round" style="border-color:var(--accent-line);background:var(--accent-soft)"><h3>Then: read-back</h3>
+          <p class="fine" style="margin:0 0 8px">Your answers come back as a one-page scope in plain language. Read it properly — this is the cheapest moment to change your mind.</p>
+          <p class="fine" style="margin:0">Then it confirms your org, the branch name and the base branch.</p></div>
+      </div>
+      <div class="cols cols-2">
+        <div class="card card--go">
+          <h3>Want the one-hour path?</h3>
+          <p class="fine" style="margin:0">Take the recommended answer every time. That is the scope the timings on this deck are based on.</p>
+        </div>
+        <div class="card card--you">
+          <h3>Curious about trade-offs?</h3>
+          <p class="fine" style="margin:0">The questions marked in amber — <strong>Q8, Q9, Q10</strong> — are where a different answer makes the build noticeably bigger. Pick one and watch the agent tell you so. Expect the run to take longer.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 While it runs ................................................. -->
+  <section class="slide" data-title="While it runs" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Prompt B · start to finish</p>
+        <h2>What happens, and when you are needed</h2>
+        <p class="lede">The amber steps wait for you. Everything else runs on its own and saves its work after every stage.</p>
+      </div>
+      <div class="journey">
+        <div class="leg is-you"><div class="leg-mark">1</div><div><h3>Interview and read-back</h3><p>Fifteen questions, then the scope read back to you.</p></div><span class="tag tag--you">~10 min</span></div>
+        <div class="leg is-you"><div class="leg-mark">2</div><div><h3>Confirm org, branch, base branch</h3><p>Three quick yes/no confirmations. It also checks your org is not a live system.</p></div><span class="tag tag--you">~1 min</span></div>
+        <div class="leg"><div class="leg-mark">3</div><div><h3>Investigate and design</h3><p>The architect checks your org (using the warm-up memory), writes a short plan, and the critic attacks it.</p></div><span class="tag tag--auto">~15 min</span></div>
+        <div class="leg is-you"><div class="leg-mark">4</div><div><h3>Approve the plan</h3><p>Read "what it will not do" first. Approve, change something, or ask for the technical detail.</p></div><span class="tag tag--you">~5 min</span></div>
+        <div class="leg"><div class="leg-mark">5</div><div><h3>Detail, build and test</h3><p>Compact specification, then tests first, then the feature — installed into your org and tested there.</p></div><span class="tag tag--auto">~25–30 min</span></div>
+        <div class="leg"><div class="leg-mark">6</div><div><h3>Independent review</h3><p>A separate reviewer checks everything. Only serious findings go back for fixing.</p></div><span class="tag tag--auto">~6–10 min</span></div>
+        <div class="leg"><div class="leg-mark">7</div><div><h3>Handover</h3><p>Installation checklist, administrator guide and user guide — Word and text versions.</p></div><span class="tag tag--auto">~10 min</span></div>
+        <div class="leg"><div class="leg-mark">8</div><div><h3>Report</h3><p>What you can now do, how it was checked, what to know before going live.</p></div><span class="tag tag--go">done</span></div>
+      </div>
+      <div class="note"><strong>While it builds:</strong> open the <code>agent-tasks/WS-<span class="echo-ini">&lt;INITIALS&gt;</span>-…</code> folder in the file list. The scope, the plan and the critic's report appear there as the work progresses.</div>
+    </div>
+  </section>
+
+  <!-- 8 When it's done ................................................ -->
+  <section class="slide" data-title="When it's done" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow is-you">After the report · your turn</p>
+        <h2>Try it yourself</h2>
+        <p class="lede">The report says <strong>DONE</strong> or <strong>NEEDS YOUR ATTENTION</strong>. On DONE, open your practice org and walk through what you asked for — five minutes of clicking tells you more than any report.</p>
+      </div>
+      <div class="cols cols-side">
+        <div class="checks" id="walk">
+          <button class="check" type="button" aria-pressed="false"><span class="box"></span><span><b>Open the app</b><span class="d">App Launcher → <strong>Equipment</strong>.</span></span></button>
+          <button class="check" type="button" aria-pressed="false"><span class="box"></span><span><b>Add an item</b><span class="d">Items tab → New. Give it a name, an asset tag and a category.</span></span></button>
+          <button class="check" type="button" aria-pressed="false"><span class="box"></span><span><b>Hand it out</b><span class="d">From the item, create a loan with an employee and a return date.</span></span></button>
+          <button class="check" type="button" aria-pressed="false"><span class="box"></span><span><b>Try to hand it out again</b><span class="d">It must be refused.</span></span></button>
+          <button class="check" type="button" aria-pressed="false"><span class="box"></span><span><b>Take it back</b><span class="d">On the loan, use the take-back action. The return time and your name are recorded.</span></span></button>
+          <button class="check" type="button" aria-pressed="false"><span class="box"></span><span><b>See something overdue</b><span class="d">Hand out again, then edit the loan's return date to yesterday — it appears on the Overdue list. If the edit is refused, the report says how overdue was verified.</span></span></button>
+          <button class="check" type="button" aria-pressed="false"><span class="box"></span><span><b>Retire an item</b><span class="d">Set its status to Retired, then try to hand it out — refused.</span></span></button>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <h3>Where your results are</h3>
+            <ul class="plain" style="margin-top:8px">
+              <li><code>request/</code> — your answers and the scope you confirmed</li>
+              <li><code>design/</code> — the plan you approved, plus the critic's report</li>
+              <li><code>deployment/</code> — the installation checklist</li>
+              <li><code>docs/</code> — administrator and user guides (Word)</li>
+            </ul>
+            <p class="fine" style="margin:10px 0 0">All inside <code>agent-tasks/WS-<span class="echo-ini">&lt;INITIALS&gt;</span>-…</code></p>
+          </div>
+          <div class="note"><strong>Exact names may differ.</strong> The agent picks the labels and buttons. The user guide in <code>docs/</code> tells you what yours are called.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 Trouble ....................................................... -->
+  <section class="slide" data-title="If something goes wrong" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Don't panic</p>
+        <h2>If something goes wrong</h2>
+        <p class="lede">The agent stops rather than guesses. A stop is a question for you, not a failure.</p>
+      </div>
+      <div class="kv">
+        <div class="kv-row"><span class="kv-k">"Org not connected" / session expired</span><span class="kv-v">In the VS Code terminal run <code>sf org login web -a <span class="echo-org">&lt;your-alias&gt;</span></code>, log in, then reply <em>continue</em> in the chat.</span></div>
+        <div class="kv-row"><span class="kv-k">"This is a production org"</span><span class="kv-v">A hard stop with no override. Use your practice org's alias instead.</span></div>
+        <div class="kv-row"><span class="kv-k">Warm-up says a tool is missing</span><span class="kv-v">Follow the <a href="AI-AGENTS-USER-GUIDE.html">setup guide</a> for that tool, then run Prompt A again.</span></div>
+        <div class="kv-row"><span class="kv-k">"Names already in use"</span><span class="kv-v">Someone built the same thing in your org already. Tell the facilitator — you may need your own org.</span></div>
+        <div class="kv-row"><span class="kv-k">A command was blocked</span><span class="kv-v">The safety hooks did their job. Do not try to bypass them — call the facilitator.</span></div>
+        <div class="kv-row"><span class="kv-k">It asks a question not on the list</span><span class="kv-v">Allowed when one of your answers opened a gap. Answer it in business terms.</span></div>
+        <div class="kv-row"><span class="kv-k">You closed VS Code mid-task</span><span class="kv-v">Reopen, start a new conversation and type <code>/sf-task WS-<span class="echo-ini">&lt;INITIALS&gt;</span></code>. It finds your folder and continues where it stopped.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 More ......................................................... -->
+  <section class="slide" data-title="Go" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Ready</p>
+        <h2>Off you go</h2>
+        <p class="lede">Prompt A first, wait for the summary, then Prompt B in a new conversation. The facilitator is around for anything that stops you.</p>
+      </div>
+      <div class="btnrow">
+        <button class="btn btn--primary" data-go="2">Prompt A →</button>
+        <button class="btn" data-go="4">Prompt B →</button>
+        <button class="btn" data-go="1">My details</button>
+      </div>
+      <div class="linkcards">
+        <a class="linkcard" href="WORKSHOP-PRESENTATION.html">
+          <h3>From Request to Release <span class="arrow">→</span></h3>
+          <p class="fine" style="margin:0">The full guided tour: who the agents are, what each step looks like on screen, and what you get at the end.</p>
+        </a>
+        <a class="linkcard" href="AI-AGENTS-USER-GUIDE.html">
+          <h3>Zero to First Task <span class="arrow">→</span></h3>
+          <p class="fine" style="margin:0">The setup guide: installing the tools, getting the project, connecting your org, troubleshooting.</p>
+        </a>
+      </div>
+      <div class="card card--go">
+        <h3>Remember</h3>
+        <ul class="plain" style="margin-top:8px">
+          <li>Your attention belongs in the interview and the approval — they are short, and nobody else can do them.</li>
+          <li>Always read "what it will not do" before approving.</li>
+          <li>Ask for the smallest thing that works; it is cheaper to add later than to remove.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="nav" aria-label="Slide navigation">
+  <div class="nav-in">
+    <button class="btn" id="prev">← Back</button>
+    <div class="dots-nav" id="dots"></div>
+    <span class="hint" id="slidename"></span>
+    <button class="btn btn--primary" id="next">Next →</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- storage (per-viewer convenience only) ---------- */
+  var KEY = 'ws-kickoff-v1';
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ return {}; } }
+  function save(s){ try { localStorage.setItem(KEY, JSON.stringify(s)); } catch(e){} }
+  var state = load();
+
+  /* ---------- deck ---------- */
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var youSlides = [1,2,4,5,7];
+  var idx = 0;
+  var cur = document.getElementById('cur');
+  var bar = document.getElementById('bar');
+  var dots = document.getElementById('dots');
+  var nameEl = document.getElementById('slidename');
+  var prev = document.getElementById('prev');
+  var next = document.getElementById('next');
+  document.getElementById('tot').textContent = slides.length;
+
+  slides.forEach(function(s,i){
+    var b = document.createElement('button');
+    b.className = 'dot' + (youSlides.indexOf(i) > -1 ? ' is-you' : '');
+    b.type = 'button';
+    b.setAttribute('aria-label', 'Go to ' + (s.dataset.title || ('slide ' + (i+1))));
+    b.addEventListener('click', function(){ show(i); });
+    dots.appendChild(b);
+  });
+  var dotEls = Array.prototype.slice.call(dots.children);
+
+  function show(i){
+    idx = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function(s,n){ s.hidden = (n !== idx); });
+    dotEls.forEach(function(d,n){ d.setAttribute('aria-current', n === idx ? 'true' : 'false'); });
+    cur.textContent = idx + 1;
+    bar.style.width = (((idx + 1) / slides.length) * 100) + '%';
+    nameEl.textContent = slides[idx].dataset.title || '';
+    prev.disabled = (idx === 0);
+    next.disabled = (idx === slides.length - 1);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    if (history.replaceState){ try { history.replaceState(null, '', '#' + (idx + 1)); } catch(e){} }
+  }
+  prev.addEventListener('click', function(){ show(idx - 1); });
+  next.addEventListener('click', function(){ show(idx + 1); });
+  document.addEventListener('keydown', function(e){
+    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown'){ show(idx + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ show(idx - 1); }
+    else if (e.key === 'Home'){ show(0); }
+    else if (e.key === 'End'){ show(slides.length - 1); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-go]'), function(b){
+    b.addEventListener('click', function(){ show(parseInt(b.dataset.go, 10)); });
+  });
+
+  /* ---------- personal details → prompts ---------- */
+  var inOrg = document.getElementById('in-org');
+  var inIni = document.getElementById('in-ini');
+  var statusEl = document.getElementById('fillstatus');
+  var taskEl = document.getElementById('taskid');
+
+  function cleanOrg(v){ return (v || '').trim().replace(/\s+/g, ''); }
+  function cleanIni(v){ return (v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); }
+
+  function apply(){
+    var org = cleanOrg(state.org);
+    var ini = cleanIni(state.ini);
+    Array.prototype.forEach.call(document.querySelectorAll('.ph[data-ph]'), function(el){
+      var key = el.dataset.ph;
+      var val = key === 'ORG_ALIAS' ? org : ini;
+      el.textContent = val || ('<' + key + '>');
+      el.classList.toggle('set', !!val);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.echo-org'), function(el){ el.textContent = org || '<your-alias>'; });
+    Array.prototype.forEach.call(document.querySelectorAll('.echo-ini'), function(el){ el.textContent = ini || '<INITIALS>'; });
+    taskEl.textContent = 'WS-' + (ini || '…');
+    if (org && ini){
+      statusEl.textContent = '✓ Both prompts are personalised — copy away.';
+      statusEl.classList.add('ok');
+    } else {
+      statusEl.textContent = 'Not filled yet — the prompts show amber placeholders.';
+      statusEl.classList.remove('ok');
+    }
+  }
+  inOrg.value = state.org || '';
+  inIni.value = state.ini || '';
+  inOrg.addEventListener('input', function(){ state.org = inOrg.value; save(state); apply(); });
+  inIni.addEventListener('input', function(){
+    var c = cleanIni(inIni.value);
+    if (inIni.value !== c) inIni.value = c;
+    state.ini = c; save(state); apply();
+  });
+  apply();
+
+  /* ---------- copy buttons ---------- */
+  function flash(btn){
+    var old = btn.dataset.label || btn.textContent;
+    btn.dataset.label = old;
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = old; btn.classList.remove('ok'); }, 1800);
+  }
+  function legacyCopy(text, btn){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly','');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); flash(btn); } catch(e){ btn.textContent = 'Select it manually'; }
+    document.body.removeChild(ta);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.copy'), function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.closest('.cmd');
+      var pre = box && box.querySelector('pre');
+      if (!pre) return;
+      var text = pre.textContent;
+      var warn = box.parentNode.querySelector('.copywarn');
+      if (warn) warn.hidden = !/<(ORG_ALIAS|INITIALS)>/.test(text);
+      if (navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(text).then(function(){ flash(btn); }, function(){ legacyCopy(text, btn); });
+      } else {
+        legacyCopy(text, btn);
+      }
+    });
+  });
+
+  /* ---------- tick lists ---------- */
+  ['checks','walk'].forEach(function(id){
+    var list = document.getElementById(id);
+    if (!list) return;
+    var items = Array.prototype.slice.call(list.querySelectorAll('.check'));
+    var saved = state[id] || [];
+    items.forEach(function(it, n){
+      if (saved[n]) it.setAttribute('aria-pressed','true');
+      it.addEventListener('click', function(){
+        var on = it.getAttribute('aria-pressed') !== 'true';
+        it.setAttribute('aria-pressed', on ? 'true' : 'false');
+        state[id] = items.map(function(x){ return x.getAttribute('aria-pressed') === 'true'; });
+        save(state);
+      });
+    });
+  });
+
+  /* ---------- start ---------- */
+  var start = parseInt((location.hash || '').replace('#',''), 10);
+  show(isNaN(start) ? 0 : start - 1);
+})();
+</script>
+</body>
+</html>
