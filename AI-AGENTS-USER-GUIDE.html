@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zero to First Task</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#f5f7f9;
+    --surface:#ffffff;
+    --surface-2:#eceff4;
+    --ink:#14181e;
+    --ink-2:#4c5563;
+    --ink-3:#737e8d;
+    --line:#dce1e8;
+    --line-2:#c4ccd7;
+    --accent:#a85c17;
+    --accent-ink:#8a4a10;
+    --accent-soft:#f8ecdd;
+    --accent-line:#e2c49f;
+    --go:#2c7350;
+    --go-ink:#1f5c3e;
+    --go-soft:#e3f0e9;
+    --go-line:#aed4c1;
+    --stop:#a33a30;
+    --stop-soft:#fae9e7;
+    --stop-line:#e8bdb7;
+
+    --term-bg:#1e2227;
+    --term-line:#333a42;
+    --term-text:#d6dbe1;
+    --term-dim:#8d97a2;
+    --term-go:#8ed5a8;
+    --term-amber:#e3b474;
+
+    --font-display:'Archivo','Segoe UI',system-ui,-apple-system,sans-serif;
+    --font-body:'IBM Plex Sans','Segoe UI',system-ui,-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono',Consolas,'Courier New',monospace;
+    --radius:11px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#111419;--surface:#191d23;--surface-2:#222730;
+      --ink:#e8ebf0;--ink-2:#b0b9c6;--ink-3:#848e9c;
+      --line:#2a2f38;--line-2:#3a414c;
+      --accent:#eda257;--accent-ink:#f2b878;--accent-soft:#2e2316;--accent-line:#5c4426;
+      --go:#5fb98a;--go-ink:#8ad3aa;--go-soft:#16241d;--go-line:#2f5543;
+      --stop:#e8897e;--stop-soft:#2b1715;--stop-line:#5e2f2a;
+      --term-bg:#0f1216;--term-line:#272d34;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#111419;--surface:#191d23;--surface-2:#222730;
+    --ink:#e8ebf0;--ink-2:#b0b9c6;--ink-3:#848e9c;
+    --line:#2a2f38;--line-2:#3a414c;
+    --accent:#eda257;--accent-ink:#f2b878;--accent-soft:#2e2316;--accent-line:#5c4426;
+    --go:#5fb98a;--go-ink:#8ad3aa;--go-soft:#16241d;--go-line:#2f5543;
+    --stop:#e8897e;--stop-soft:#2b1715;--stop-line:#5e2f2a;
+    --term-bg:#0f1216;--term-line:#272d34;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--ground);color:var(--ink);
+    font-family:var(--font-body);font-size:16px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%}
+  [hidden]{display:none !important}
+  :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:5px}
+  @media (prefers-reduced-motion: reduce){*{transition-duration:.01ms !important;animation:none !important}}
+
+  /* ---------- header ---------- */
+  .masthead{border-bottom:1px solid var(--line);background:var(--surface)}
+  .masthead-in{max-width:1180px;margin:0 auto;padding:30px 20px 26px}
+  .kicker{
+    font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);margin:0 0 10px;
+  }
+  h1{
+    font-family:var(--font-display);font-weight:700;letter-spacing:-.025em;line-height:1.08;
+    font-size:clamp(1.9rem,1.3rem + 2.2vw,2.7rem);margin:0 0 12px;text-wrap:balance;
+  }
+  .sub{font-size:1.08rem;color:var(--ink-2);max-width:60ch;margin:0}
+
+  /* ---------- layout ---------- */
+  .shell{max-width:1180px;margin:0 auto;padding:0 20px;padding-block:26px 90px;display:grid;gap:30px}
+  @media (min-width:980px){
+    .shell{grid-template-columns:238px minmax(0,1fr);align-items:start;gap:40px}
+  }
+
+  /* ---------- sidebar ---------- */
+  .toc{position:sticky;top:16px;align-self:start}
+  .toc-head{
+    display:flex;align-items:baseline;gap:8px;margin-bottom:10px;
+    font-family:var(--font-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
+  }
+  .toc-prog{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--accent)}
+  .toc-bar{height:4px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:14px}
+  .toc-bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s ease}
+  .toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+  .toc a{
+    display:flex;gap:9px;align-items:baseline;text-decoration:none;color:var(--ink-2);
+    font-size:.88rem;padding:6px 9px;border-radius:7px;border-left:2px solid transparent;
+  }
+  .toc a:hover{background:var(--surface-2);color:var(--ink)}
+  .toc a.on{background:var(--accent-soft);color:var(--accent-ink);border-left-color:var(--accent);font-weight:600}
+  .toc a i{font-family:var(--font-mono);font-style:normal;font-size:.76rem;color:var(--ink-3);flex:none}
+  .toc a.on i{color:var(--accent-ink)}
+  .toc-reset{
+    margin-top:12px;width:100%;font:inherit;font-size:.78rem;color:var(--ink-3);
+    background:none;border:1px solid var(--line);border-radius:7px;padding:6px;cursor:pointer;
+  }
+  .toc-reset:hover{border-color:var(--line-2);color:var(--ink-2)}
+  @media (max-width:979px){
+    .toc{position:static;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:15px 16px}
+  }
+
+  /* ---------- content ---------- */
+  .part{margin-bottom:46px;scroll-margin-top:20px}
+  .part-head{margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--line)}
+  .part-no{
+    font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-3);display:block;margin-bottom:5px;
+  }
+  h2{
+    font-family:var(--font-display);font-weight:700;letter-spacing:-.02em;line-height:1.14;
+    font-size:clamp(1.4rem,1.1rem + 1.2vw,1.85rem);margin:0;text-wrap:balance;
+  }
+  h3{font-family:var(--font-display);font-weight:600;font-size:1.06rem;letter-spacing:-.01em;margin:0 0 5px}
+  p{margin:0 0 13px;max-width:68ch}
+  p:last-child{margin-bottom:0}
+  .lede{font-size:1.03rem;color:var(--ink-2);margin-bottom:22px}
+  .fine{font-size:.9rem;color:var(--ink-2)}
+  code{font-family:var(--font-mono);font-size:.87em;background:var(--surface-2);padding:1.5px 5px;border-radius:4px;word-break:break-word}
+  strong{font-weight:600}
+  a{color:var(--accent-ink)}
+
+  /* steps */
+  .step{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:17px 19px;margin-bottom:13px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:15px;
+  }
+  .step.done{border-color:var(--go-line);background:var(--go-soft)}
+  .tick{
+    width:28px;height:28px;border-radius:8px;border:1.5px solid var(--line-2);background:var(--surface);
+    cursor:pointer;flex:none;padding:0;display:grid;place-items:center;
+    font-family:var(--font-mono);font-size:.78rem;color:var(--ink-3);transition:all .18s ease;
+  }
+  .tick:hover{border-color:var(--accent)}
+  .step.done .tick{background:var(--go);border-color:var(--go);color:#fff}
+  .step.done .tick::after{content:"✓"}
+  .tick span{pointer-events:none}
+  .step.done .tick span{display:none}
+  .step-body{min-width:0}
+  .step-body > :last-child{margin-bottom:0}
+
+  /* command block */
+  .cmd{
+    background:var(--term-bg);border:1px solid var(--term-line);border-radius:9px;
+    margin:11px 0;overflow:hidden;
+  }
+  .cmd-top{
+    display:flex;align-items:center;gap:9px;padding:6px 11px;border-bottom:1px solid var(--term-line);
+    font-family:var(--font-mono);font-size:.67rem;letter-spacing:.09em;text-transform:uppercase;color:var(--term-dim);
+  }
+  .cmd-top .where{margin-right:auto}
+  .copy{
+    font:inherit;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;
+    background:none;border:1px solid var(--term-line);color:var(--term-dim);
+    border-radius:5px;padding:2px 9px;cursor:pointer;
+  }
+  .copy:hover{color:#fff;border-color:#5a646f}
+  .copy.ok{color:var(--term-go);border-color:var(--term-go)}
+  .cmd pre{
+    margin:0;padding:11px 13px;overflow-x:auto;
+    font-family:var(--font-mono);font-size:.82rem;line-height:1.75;color:var(--term-text);
+  }
+  .cmd pre .ph{color:var(--term-amber)}
+  .cmd pre .cm{color:var(--term-dim)}
+
+  /* verify / warn / why */
+  .verify{
+    border:1px solid var(--go-line);background:var(--go-soft);border-radius:9px;
+    padding:10px 13px;margin:11px 0;font-size:.9rem;color:var(--ink-2);
+  }
+  .verify b{color:var(--go-ink);display:block;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;font-family:var(--font-mono);margin-bottom:3px}
+  .warn{
+    border:1px solid var(--stop-line);background:var(--stop-soft);border-radius:9px;
+    padding:11px 14px;margin:11px 0;font-size:.92rem;color:var(--ink-2);
+  }
+  .warn b{color:var(--stop);display:block;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;font-family:var(--font-mono);margin-bottom:3px}
+  .tip{
+    border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 9px 9px 0;
+    padding:11px 14px;margin:13px 0;font-size:.93rem;color:var(--ink-2);
+  }
+  .tip strong{color:var(--ink)}
+
+  details.why{margin:10px 0 0;border-top:1px dashed var(--line-2);padding-top:9px}
+  details.why summary{
+    cursor:pointer;font-size:.85rem;color:var(--ink-3);list-style:none;
+    display:flex;align-items:center;gap:7px;font-family:var(--font-mono);
+  }
+  details.why summary::-webkit-details-marker{display:none}
+  details.why summary::before{content:"?";width:16px;height:16px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;font-size:.68rem;flex:none}
+  details.why[open] summary::before{content:"×";border-color:var(--accent);color:var(--accent)}
+  details.why p{margin:8px 0 0;font-size:.89rem;color:var(--ink-2)}
+
+  /* repo inputs */
+  .setupbox{
+    background:var(--surface);border:1.5px solid var(--accent-line);border-radius:var(--radius);
+    padding:17px 19px;margin-bottom:18px;
+  }
+  .setupbox h3{margin-bottom:3px}
+  .fields{display:grid;gap:12px;margin-top:13px}
+  @media (min-width:700px){.fields{grid-template-columns:1fr 1fr}}
+  .field label{display:block;font-size:.8rem;font-weight:600;margin-bottom:4px}
+  .field label em{font-style:normal;color:var(--ink-3);font-weight:400}
+  .field input{
+    width:100%;font:inherit;font-family:var(--font-mono);font-size:.82rem;
+    padding:8px 11px;border:1px solid var(--line-2);border-radius:7px;
+    background:var(--ground);color:var(--ink);
+  }
+  .field input:focus{border-color:var(--accent);outline:none}
+  .field .hint{font-size:.78rem;color:var(--ink-3);margin-top:4px;font-family:var(--font-mono);word-break:break-all}
+
+  /* path switch */
+  .switch{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .switch button{
+    font:inherit;font-family:var(--font-display);font-weight:600;font-size:.9rem;
+    background:var(--surface);border:1.5px solid var(--line-2);color:var(--ink-2);
+    border-radius:9px;padding:9px 15px;cursor:pointer;text-align:left;
+  }
+  .switch button small{display:block;font-family:var(--font-body);font-weight:400;font-size:.78rem;color:var(--ink-3)}
+  .switch button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+  .switch button[aria-pressed="true"] small{color:var(--accent-ink);opacity:.85}
+
+  /* tables & lists */
+  .tbl{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+  .tr{display:grid;grid-template-columns:1fr;gap:2px;padding:12px 15px;border-bottom:1px solid var(--line)}
+  @media (min-width:680px){.tr{grid-template-columns:215px 1fr;gap:18px;align-items:baseline}}
+  .tr:last-child{border-bottom:0}
+  .tk{font-weight:600;font-size:.92rem}
+  .tk code{background:none;padding:0;color:var(--accent-ink);font-size:.86rem}
+  .tv{font-size:.92rem;color:var(--ink-2)}
+  ul.plain{margin:0 0 13px;padding-left:19px}
+  ul.plain li{margin-bottom:6px}
+  ul.plain li::marker{color:var(--ink-3)}
+
+  /* troubleshoot */
+  .tsh{display:flex;flex-direction:column;gap:9px}
+  details.ts{background:var(--surface);border:1px solid var(--line);border-radius:9px}
+  details.ts[open]{border-color:var(--accent-line)}
+  details.ts summary{
+    cursor:pointer;padding:12px 15px;font-weight:600;font-size:.94rem;list-style:none;
+    display:flex;gap:10px;align-items:flex-start;
+  }
+  details.ts summary::-webkit-details-marker{display:none}
+  details.ts summary::before{content:"+";font-family:var(--font-mono);color:var(--accent);flex:none;line-height:1.5}
+  details.ts[open] summary::before{content:"–"}
+  details.ts .ts-body{padding:0 15px 14px 36px}
+  details.ts .ts-body > :last-child{margin-bottom:0}
+
+  /* glossary */
+  .gloss{display:grid;gap:9px}
+  @media (min-width:720px){.gloss{grid-template-columns:1fr 1fr}}
+  details.term{background:var(--surface);border:1px solid var(--line);border-radius:9px}
+  details.term[open]{border-color:var(--accent-line)}
+  details.term summary{cursor:pointer;padding:10px 14px;font-family:var(--font-display);font-weight:600;font-size:.93rem;list-style:none;display:flex;gap:9px;align-items:center}
+  details.term summary::-webkit-details-marker{display:none}
+  details.term summary::before{content:"+";font-family:var(--font-mono);color:var(--accent);font-size:.95rem;line-height:1}
+  details.term[open] summary::before{content:"–"}
+  details.term p{margin:0;padding:0 14px 12px 32px;font-size:.88rem;color:var(--ink-2)}
+
+  .done-banner{
+    border:1.5px solid var(--go-line);background:var(--go-soft);border-radius:var(--radius);
+    padding:17px 19px;margin-top:6px;
+  }
+  .done-banner h3{color:var(--go-ink)}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <p class="kicker">Salesforce AI agents · setup and first task</p>
+    <h1>Zero to first task</h1>
+    <p class="sub">Everything you need to do, in order, from a laptop with nothing installed to a finished piece of Salesforce built for you. Written for people who are not developers. Tick things off as you go — this page remembers.</p>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- ================= sidebar ================= -->
+  <nav class="toc" aria-label="Contents">
+    <div class="toc-head">Your progress <span class="toc-prog"><span id="pdone">0</span>/<span id="ptot">0</span></span></div>
+    <div class="toc-bar"><i id="pbar"></i></div>
+    <ol id="tocList">
+      <li><a href="#p0"><i>·</i> Before you start</a></li>
+      <li><a href="#p1"><i>1</i> Install the tools</a></li>
+      <li><a href="#p2"><i>2</i> Get the project</a></li>
+      <li><a href="#p3"><i>3</i> Open and connect</a></li>
+      <li><a href="#p4"><i>4</i> Your first task</a></li>
+      <li><a href="#p5"><i>5</i> The commands</a></li>
+      <li><a href="#p6"><i>6</i> Where files are</a></li>
+      <li><a href="#p7"><i>7</i> If something breaks</a></li>
+      <li><a href="#p8"><i>8</i> Words you'll hear</a></li>
+    </ol>
+    <button class="toc-reset" id="resetAll" type="button">Clear my ticks</button>
+  </nav>
+
+  <main>
+
+  <!-- ================= PART 0 ================= -->
+  <section class="part" id="p0">
+    <div class="part-head"><span class="part-no">Before you start</span><h2>What you need in front of you</h2></div>
+    <p class="lede">Gather these four things first. If you are missing one, ask the person who invited you to the workshop — none of them is something you can work out for yourself.</p>
+    <div class="tbl">
+      <div class="tr"><span class="tk">A Windows laptop</span><span class="tv">With permission to install software. If your company locks that down, ask IT first — installing takes five minutes, getting permission can take days.</span></div>
+      <div class="tr"><span class="tk">Two GitHub links</span><span class="tv">One for the Salesforce project, one for the AI agent setup. They look like <code>https://github.com/company/project.git</code>. You will paste both into this page in Part 2.</span></div>
+      <div class="tr"><span class="tk">A GitHub account</span><span class="tv">With access to both of those. Test it: open both links in a browser. If you see the files, you are fine. If you see "404", you do not have access yet.</span></div>
+      <div class="tr"><span class="tk">A Salesforce practice org</span><span class="tv">A free Trailhead Playground works. You need its username and password — not the login you use for your company's real Salesforce.</span></div>
+    </div>
+    <div class="warn"><b>One rule above all others</b>Never point this at your company's live Salesforce. The agents refuse to work against a live system, with no way to override it — but the safest arrangement is for those credentials not to be on the laptop at all.</div>
+    <p class="fine" style="margin-top:14px">Set aside <strong>about 45 minutes</strong> for Parts 1 to 3. You only ever do them once.</p>
+  </section>
+
+  <!-- ================= PART 1 ================= -->
+  <section class="part" id="p1">
+    <div class="part-head"><span class="part-no">Part 1</span><h2>Install the tools</h2></div>
+    <p class="lede">Seven things to install. Each step is the same shape: run a command, then check it worked. If a check fails, open the "something went wrong" note underneath it.</p>
+
+    <div class="tip"><strong>How to open a terminal.</strong> Press the <strong>Windows key</strong>, type <code>powershell</code>, and press Enter. A blue or black window opens where you can type commands. That window is called a terminal. Keep it open for all of Part 1.</div>
+
+    <div class="step" data-step="t1">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>1</span></button>
+      <div class="step-body">
+        <h3>Node.js</h3>
+        <p class="fine">The engine that runs the agent's helper scripts. Install this one first.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre>winget install OpenJS.NodeJS.LTS</pre></div>
+        <div class="warn"><b>Then close the terminal and open a new one</b>Newly installed tools only appear in a terminal that was opened <em>after</em> the install. This trips up almost everyone. Close the window, open PowerShell again, and continue.</div>
+        <div class="cmd"><div class="cmd-top"><span class="where">check it worked</span><button class="copy" type="button">Copy</button></div><pre>node -v</pre></div>
+        <div class="verify"><b>You should see</b>A version number starting with <code>v20</code> or higher, like <code>v22.21.1</code>.</div>
+      </div>
+    </div>
+
+    <div class="step" data-step="t2">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>2</span></button>
+      <div class="step-body">
+        <h3>Git</h3>
+        <p class="fine">Keeps every version of the work and shares it with your team. The agents use it constantly; you will barely touch it.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre>winget install Git.Git</pre></div>
+        <div class="cmd"><div class="cmd-top"><span class="where">new terminal, then check</span><button class="copy" type="button">Copy</button></div><pre>git --version</pre></div>
+        <div class="verify"><b>You should see</b>Something like <code>git version 2.42.0.windows.2</code>.</div>
+      </div>
+    </div>
+
+    <div class="step" data-step="t3">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>3</span></button>
+      <div class="step-body">
+        <h3>The Salesforce command line</h3>
+        <p class="fine">How the agents talk to your Salesforce — installing work into it, running tests, reading how it is configured.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre>npm install -g @salesforce/cli</pre></div>
+        <p class="fine">This one takes a minute or two and prints a lot of text. That is normal.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">new terminal, then check</span><button class="copy" type="button">Copy</button></div><pre>sf --version</pre></div>
+        <div class="verify"><b>You should see</b>A line starting with <code>@salesforce/cli/</code> and a version number.</div>
+        <details class="why"><summary>npm is not recognised?</summary><p>That means Node.js from step 1 is not installed, or you are in a terminal that was open before you installed it. Close the terminal, open a new one, and try <code>node -v</code> first.</p></details>
+      </div>
+    </div>
+
+    <div class="step" data-step="t4">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>4</span></button>
+      <div class="step-body">
+        <h3>The code inspector</h3>
+        <p class="fine">An add-on for the Salesforce command line that automatically checks every file the agents write for security holes and sloppy patterns.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre>sf plugins install code-analyzer</pre></div>
+        <div class="verify"><b>You should see</b>It finishes without an error. If it asks you to confirm installing from an unverified publisher, answer <code>y</code>.</div>
+      </div>
+    </div>
+
+    <div class="step" data-step="t5">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>5</span></button>
+      <div class="step-body">
+        <h3>Java</h3>
+        <p class="fine">You will never use it directly. Part of the code inspector needs it to run.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre>winget install EclipseAdoptium.Temurin.21.JDK</pre></div>
+        <div class="cmd"><div class="cmd-top"><span class="where">new terminal, then check</span><button class="copy" type="button">Copy</button></div><pre>java -version</pre></div>
+        <div class="verify"><b>You should see</b>Three lines mentioning a version number and "Temurin" or "OpenJDK".</div>
+      </div>
+    </div>
+
+    <div class="step" data-step="t6">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>6</span></button>
+      <div class="step-body">
+        <h3>Microsoft Word</h3>
+        <p class="fine">Not something you install here — you almost certainly have it. The agents write your design document and the two handover guides as real Word files, by driving Word itself.</p>
+        <div class="verify"><b>Just check</b>Open the Start menu and type <code>Word</code>. If Microsoft Word opens, you are done. Close it again.</div>
+        <div class="warn"><b>If you do not have Word</b>A task will stop at the first document it tries to write. This is the one thing on the list that cannot be installed automatically — ask IT.</div>
+      </div>
+    </div>
+
+    <div class="step" data-step="t7">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>7</span></button>
+      <div class="step-body">
+        <h3>VS Code, and the Claude extension inside it</h3>
+        <p class="fine">VS Code is the window where everything happens. The Claude extension is the agent itself.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre>winget install Microsoft.VisualStudioCode</pre></div>
+        <p class="fine" style="margin-top:11px">Then open VS Code and add the extension:</p>
+        <ul class="plain">
+          <li>Click the <strong>Extensions</strong> icon in the left-hand icon strip — four small squares.</li>
+          <li>Type <strong>Claude Code</strong> in the search box.</li>
+          <li>Click <strong>Install</strong> on the official Anthropic one.</li>
+          <li>Sign in when it asks, using the Claude account you were given.</li>
+        </ul>
+        <div class="verify"><b>You should see</b>A new Claude icon appears in the icon strip, and clicking it opens a chat panel.</div>
+      </div>
+    </div>
+
+    <div class="step" data-step="t8">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>8</span></button>
+      <div class="step-body">
+        <h3>Sign in to GitHub <span style="font-weight:400;color:var(--ink-3);font-size:.85rem">— recommended</span></h3>
+        <p class="fine">Does your signing-in for you, so Git never stops to ask for a password.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre>winget install GitHub.cli</pre></div>
+        <div class="cmd"><div class="cmd-top"><span class="where">new terminal, then sign in</span><button class="copy" type="button">Copy</button></div><pre>gh auth login</pre></div>
+        <p class="fine">Answer: <strong>GitHub.com</strong> → <strong>HTTPS</strong> → <strong>Yes</strong> (authenticate Git) → <strong>Login with a web browser</strong>. Copy the code it shows, press Enter, and paste the code into the browser page that opens.</p>
+        <div class="verify"><b>You should see</b><code>✓ Logged in as yourname</code> back in the terminal.</div>
+      </div>
+    </div>
+
+    <div class="step" data-step="t9">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>9</span></button>
+      <div class="step-body">
+        <h3>Tell Git who you are</h3>
+        <p class="fine">Every save is signed with your name. Put your own name and work e-mail in, replacing the examples.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre>git config --global user.name <span class="ph">"Your Name"</span>
+git config --global user.email <span class="ph">"you@yourcompany.com"</span></pre></div>
+        <div class="verify"><b>Check</b>Run <code>git config --global user.name</code> — it should print your name back.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PART 2 ================= -->
+  <section class="part" id="p2">
+    <div class="part-head"><span class="part-no">Part 2</span><h2>Get the project onto your computer</h2></div>
+    <p class="lede">The Salesforce project and the AI agent setup start life as two separate GitHub repositories. They have to end up as <strong>one folder</strong> on your laptop. This part does that.</p>
+
+    <div class="setupbox">
+      <h3>Paste your two links here first</h3>
+      <p class="fine" style="margin:0">Every command below will fill in with your real values, so you can copy them straight across. Nothing leaves this page — it is only stored in your browser.</p>
+      <div class="fields">
+        <div class="field">
+          <label for="repo1">Repo 1 — the Salesforce project <em>(sfdx)</em></label>
+          <input type="text" id="repo1" placeholder="https://github.com/company/salesforce-project.git" autocomplete="off" spellcheck="false">
+          <div class="hint">folder it creates: <span id="folder1">salesforce-project</span></div>
+        </div>
+        <div class="field">
+          <label for="repo2">Repo 2 — the AI agent base <em>(clean)</em></label>
+          <input type="text" id="repo2" placeholder="https://github.com/company/ai-base.git" autocomplete="off" spellcheck="false">
+          <div class="hint">downloads into: ai-base-download</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:9px">Which of these are you?</h3>
+    <div class="switch" id="pathSwitch">
+      <button type="button" data-path="a" aria-pressed="true">I am the first one<small>Nobody has combined them yet</small></button>
+      <button type="button" data-path="b" aria-pressed="false">Someone did this already<small>The project already has the agent setup in it</small></button>
+    </div>
+
+    <!-- PATH B -->
+    <div id="pathB" hidden>
+      <div class="tip"><strong>Then you have almost nothing to do.</strong> The agent setup is already part of the Salesforce project, so one download gets you everything.</div>
+      <div class="step" data-step="b1">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>1</span></button>
+        <div class="step-body">
+          <h3>Make a folder to work in, and go into it</h3>
+          <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre>mkdir C:\Work
+cd C:\Work</pre></div>
+          <p class="fine">If it says the folder already exists, that is fine — the <code>cd</code> line still works.</p>
+        </div>
+      </div>
+      <div class="step" data-step="b2">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>2</span></button>
+        <div class="step-body">
+          <h3>Download the project</h3>
+          <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre data-tpl="git clone {R1}">git clone <span class="ph">&lt;repo 1 link&gt;</span></pre></div>
+          <div class="verify"><b>You should see</b><code>Resolving deltas: 100%</code> and then <code>done.</code> You now have a folder <code><span class="f1">C:\Work\salesforce-project</span></code>.</div>
+        </div>
+      </div>
+      <div class="step" data-step="b3">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>3</span></button>
+        <div class="step-body">
+          <h3>Check the agent setup really is in there</h3>
+          <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre data-tpl="cd {F1}
+dir">cd <span class="f1">C:\Work\salesforce-project</span>
+dir</pre></div>
+          <div class="verify"><b>You should see</b>Both <code>sfdx-project.json</code> and <code>CLAUDE.md</code> in the list. If <code>CLAUDE.md</code> is missing, the setup was never combined — switch to "I am the first one" above.</div>
+          <p class="fine" style="margin-top:11px">That is Part 2 finished. Skip to Part 3.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PATH A -->
+    <div id="pathA">
+      <div class="tip"><strong>What you are about to do.</strong> Download both repositories side by side, copy the agent setup <em>into</em> the Salesforce project, and save that combination back to GitHub. After this, everyone else on your team only needs the one download in the other tab.</div>
+
+      <div class="step" data-step="a1">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>1</span></button>
+        <div class="step-body">
+          <h3>Make a folder to work in, and go into it</h3>
+          <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre>mkdir C:\Work
+cd C:\Work</pre></div>
+          <details class="why"><summary>What does cd do?</summary><p>A terminal is always "standing in" one folder. <code>cd</code> means <em>change directory</em> — it walks into a folder, so the next commands act on that folder. You will do this a lot.</p></details>
+        </div>
+      </div>
+
+      <div class="step" data-step="a2">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>2</span></button>
+        <div class="step-body">
+          <h3>Download the Salesforce project</h3>
+          <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre data-tpl="git clone {R1}">git clone <span class="ph">&lt;repo 1 link&gt;</span></pre></div>
+          <div class="verify"><b>You should see</b>A new folder <code><span class="f1">C:\Work\salesforce-project</span></code>.</div>
+        </div>
+      </div>
+
+      <div class="step" data-step="a3">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>3</span></button>
+        <div class="step-body">
+          <h3>Download the AI agent base next to it</h3>
+          <p class="fine">The extra words at the end give it a clear name, so you do not confuse the two folders.</p>
+          <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre data-tpl="git clone {R2} ai-base-download">git clone <span class="ph">&lt;repo 2 link&gt;</span> ai-base-download</pre></div>
+          <div class="verify"><b>You should now have two folders</b><code><span class="f1">C:\Work\salesforce-project</span></code> and <code>C:\Work\ai-base-download</code>.</div>
+        </div>
+      </div>
+
+      <div class="step" data-step="a4">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>4</span></button>
+        <div class="step-body">
+          <h3>Look inside the download — there are two possible shapes</h3>
+          <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre>dir C:\Work\ai-base-download</pre></div>
+          <p class="fine">Read what it prints and pick one:</p>
+          <ul class="plain">
+            <li><strong>You see <code>CLAUDE.md</code> listed</strong> → the setup is at the top level. Use <strong>command A</strong> in the next step.</li>
+            <li><strong>You see a folder called <code>ai-base</code></strong> → the setup is one level down. Use <strong>command B</strong> in the next step.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step" data-step="a5">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>5</span></button>
+        <div class="step-body">
+          <h3>Copy the agent setup into the Salesforce project</h3>
+          <p class="fine">Use the one command that matches what you saw in step 4.</p>
+          <div class="cmd"><div class="cmd-top"><span class="where">command A — CLAUDE.md at the top</span><button class="copy" type="button">Copy</button></div><pre data-tpl='robocopy C:\Work\ai-base-download "{F1}" /E /XD .git'>robocopy C:\Work\ai-base-download "<span class="f1">C:\Work\salesforce-project</span>" /E /XD .git</pre></div>
+          <div class="cmd"><div class="cmd-top"><span class="where">command B — there is an ai-base folder</span><button class="copy" type="button">Copy</button></div><pre data-tpl='robocopy C:\Work\ai-base-download\ai-base "{F1}" /E'>robocopy C:\Work\ai-base-download\ai-base "<span class="f1">C:\Work\salesforce-project</span>" /E</pre></div>
+          <div class="warn"><b>Do not drag the folders in File Explorer</b>Some of what you are copying is hidden — a folder called <code>.claude</code> that Windows does not show you by default. Drag-and-drop will silently miss it and nothing will work. The command above copies hidden items properly.</div>
+          <div class="verify"><b>You should see</b>A summary table ending in numbers. <strong>Robocopy prints a number instead of "success"</strong> — anything from 0 to 7 means it worked. 8 or above means a real failure.</div>
+          <details class="why"><summary>What is /XD .git for?</summary><p>Each downloaded folder has a hidden <code>.git</code> folder holding its entire history. If you copied the agent base's one over the Salesforce project's one, you would wreck the project's history. <code>/XD .git</code> tells the copy to leave it alone. Command B does not need it, because the <code>ai-base</code> folder does not contain one.</p></details>
+        </div>
+      </div>
+
+      <div class="step" data-step="a6">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>6</span></button>
+        <div class="step-body">
+          <h3>Check the two are now one</h3>
+          <div class="cmd"><div class="cmd-top"><span class="where">in your terminal</span><button class="copy" type="button">Copy</button></div><pre data-tpl="cd {F1}
+dir
+dir .claude">cd <span class="f1">C:\Work\salesforce-project</span>
+dir
+dir .claude</pre></div>
+          <div class="verify"><b>You should see</b><code>sfdx-project.json</code> <strong>and</strong> <code>CLAUDE.md</code> side by side in the first listing, and <code>agents</code>, <code>hooks</code>, <code>scripts</code>, <code>skills</code> in the second. If <code>dir .claude</code> says the path cannot be found, the copy missed the hidden folder — run step 5 again.</div>
+        </div>
+      </div>
+
+      <div class="step" data-step="a7">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>7</span></button>
+        <div class="step-body">
+          <h3>See what you are about to save</h3>
+          <div class="cmd"><div class="cmd-top"><span class="where">in the project folder</span><button class="copy" type="button">Copy</button></div><pre>git status</pre></div>
+          <div class="verify"><b>You should see</b>A list of new files in red, under "Untracked files" — <code>CLAUDE.md</code>, <code>docs/</code>, <code>.claude/</code>, <code>agent-memory/</code> and so on. These are exactly the files you copied in. Nothing should be listed as deleted.</div>
+        </div>
+      </div>
+
+      <div class="step" data-step="a8">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>8</span></button>
+        <div class="step-body">
+          <h3>Save it back to GitHub, on its own branch</h3>
+          <p class="fine">A branch is a safe side-copy. Your team reviews it before it becomes official, exactly as they would any other change.</p>
+          <div class="cmd"><div class="cmd-top"><span class="where">in the project folder</span><button class="copy" type="button">Copy</button></div><pre>git switch -c chore/add-ai-agent-base
+git add .
+git commit -m "Add the AI agent base"
+git push -u origin chore/add-ai-agent-base</pre></div>
+          <div class="verify"><b>You should see</b>Git prints a link to open a pull request. Open that link in a browser, click <strong>Create pull request</strong>, and ask your team to merge it.</div>
+          <div class="tip"><strong>After it is merged</strong>, everybody else on the team just downloads the project the normal way and gets the agent setup with it. Nobody has to repeat Part 2.</div>
+        </div>
+      </div>
+
+      <div class="step" data-step="a9">
+        <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>9</span></button>
+        <div class="step-body">
+          <h3>Tidy up</h3>
+          <p class="fine">The download folder has done its job. You can delete it in File Explorer, or leave it — it does no harm.</p>
+          <div class="cmd"><div class="cmd-top"><span class="where">optional</span><button class="copy" type="button">Copy</button></div><pre>Remove-Item -Recurse -Force C:\Work\ai-base-download</pre></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PART 3 ================= -->
+  <section class="part" id="p3">
+    <div class="part-head"><span class="part-no">Part 3</span><h2>Open it and connect everything up</h2></div>
+    <p class="lede">From here on you can forget PowerShell. Everything happens inside VS Code.</p>
+
+    <div class="step" data-step="o1">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>1</span></button>
+      <div class="step-body">
+        <h3>Open the project folder — the folder, not a file</h3>
+        <ul class="plain">
+          <li>Open VS Code.</li>
+          <li><strong>File → Open Folder…</strong></li>
+          <li>Choose <code><span class="f1">C:\Work\salesforce-project</span></code> and click <strong>Select Folder</strong>.</li>
+          <li>If it asks "Do you trust the authors of the files in this folder?", click <strong>Yes, I trust the authors</strong>.</li>
+        </ul>
+        <div class="warn"><b>Open the right folder</b>Not the folder above it (<code>C:\Work</code>), not <code>force-app</code> inside it. The agents look for their instructions in whatever folder you opened. Open the wrong one and they will not find them — this is the single most common first-day mistake.</div>
+        <div class="verify"><b>You should see</b>In the left panel: <code>CLAUDE.md</code>, <code>sfdx-project.json</code>, <code>docs</code>, <code>force-app</code>, <code>agent-tasks</code>.</div>
+      </div>
+    </div>
+
+    <div class="step" data-step="o2">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>2</span></button>
+      <div class="step-body">
+        <h3>Open the terminal inside VS Code</h3>
+        <p class="fine">From the top menu: <strong>Terminal → New Terminal</strong>. A panel opens along the bottom.</p>
+        <div class="tip"><strong>Why this matters more than it sounds.</strong> Salesforce commands only work when the terminal is standing in the project folder — the one holding <code>sfdx-project.json</code>. VS Code's own terminal always opens there. That is the whole reason to use it instead of PowerShell from now on.</div>
+        <div class="cmd"><div class="cmd-top"><span class="where">confirm where you are standing</span><button class="copy" type="button">Copy</button></div><pre>pwd</pre></div>
+        <div class="verify"><b>You should see</b>Your project folder path, ending in the project name — not <code>C:\Users\you</code> and not <code>C:\Work</code>.</div>
+        <details class="why"><summary>What if I see "This directory does not contain a valid Salesforce DX project"?</summary><p>You are standing in the wrong folder. Run <code>pwd</code> to see where you are, then <code>cd</code> into the project folder. Or simply close the terminal panel and open a fresh one with <strong>Terminal → New Terminal</strong>, which always starts in the right place.</p></details>
+      </div>
+    </div>
+
+    <div class="step" data-step="o3">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>3</span></button>
+      <div class="step-body">
+        <h3>Let the project check your laptop</h3>
+        <p class="fine">The project ships with its own checker. It tells you in one go whether everything from Part 1 is present and usable.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">in the VS Code terminal</span><button class="copy" type="button">Copy</button></div><pre>node .claude/scripts/check-tools.js</pre></div>
+        <div class="verify"><b>You should see</b><code>OK</code> next to every line: node, git, sf CLI, code-analyzer, java, Microsoft Office.</div>
+        <details class="why"><summary>Something says MISSING</summary><p>Run the same command with <code>--install</code> on the end — it will try to install what is missing and check again. Microsoft Office is the exception: it is never installed automatically, so a missing Word has to be solved by you or IT.</p></details>
+        <details class="why"><summary>It says it cannot find the file</summary><p>You are in the wrong folder. See step 2 — that path only works from the project folder.</p></details>
+      </div>
+    </div>
+
+    <div class="step" data-step="o4">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>4</span></button>
+      <div class="step-body">
+        <h3>Connect your practice Salesforce</h3>
+        <p class="fine"><code>workshop</code> is just a nickname for the connection. Keep it as-is and everything else in this guide will match.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">in the VS Code terminal</span><button class="copy" type="button">Copy</button></div><pre>sf org login web -a workshop</pre></div>
+        <p class="fine">A browser window opens on the Salesforce login page. Sign in with your <strong>practice org</strong> username and password, then click <strong>Allow</strong>.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">make it the default, then check</span><button class="copy" type="button">Copy</button></div><pre>sf config set target-org workshop
+sf org display -o workshop</pre></div>
+        <div class="verify"><b>You should see</b>Your username, an org ID, and <code>Connected Status: Connected</code>.</div>
+      </div>
+    </div>
+
+    <div class="step" data-step="o5">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>5</span></button>
+      <div class="step-body">
+        <h3>Check Git can reach GitHub from here</h3>
+        <div class="cmd"><div class="cmd-top"><span class="where">in the VS Code terminal</span><button class="copy" type="button">Copy</button></div><pre>git fetch</pre></div>
+        <div class="verify"><b>You should see</b>Nothing at all, or a few lines about branches. No password prompt, no error. Silence is success here.</div>
+        <details class="why"><summary>It asks for a username and password</summary><p>Go back to Part 1 step 8 and run <code>gh auth login</code>. That stores your sign-in once so Git stops asking.</p></details>
+      </div>
+    </div>
+
+    <div class="step" data-step="o6">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>6</span></button>
+      <div class="step-body">
+        <h3>Open the Claude panel and set it to Auto</h3>
+        <ul class="plain">
+          <li>Click the <strong>Claude</strong> icon in the left-hand icon strip.</li>
+          <li>Set the permission mode to <strong>Auto</strong>. Look for the mode indicator at the bottom of the panel, or type <code>/config</code>.</li>
+          <li>Type <code>/agents</code> and press Enter.</li>
+        </ul>
+        <div class="verify"><b>You should see</b>Four agents listed: solution architect, solution critic, developer, code reviewer. Typing <code>/</code> should also offer <code>sf-task</code>, <code>sf-plan</code> and <code>sf-review</code>.</div>
+        <details class="why"><summary>Is "Auto" safe?</summary><p>Yes, and it is required — the agent has to edit files, install things into your practice Salesforce and save its work dozens of times per task, and stopping to ask you each time would make it unusable. Your safety net is elsewhere: genuinely destructive commands are blocked outright and cannot be unblocked, you approve the plan before anything is built, a separate reviewer checks the finished work, and it never touches your live Salesforce.</p></details>
+      </div>
+    </div>
+
+    <div class="done-banner">
+      <h3>Setup finished</h3>
+      <p class="fine" style="margin:5px 0 0">You never have to do Parts 1 to 3 again. From now on you open VS Code, open this folder, and start typing.</p>
+    </div>
+  </section>
+
+  <!-- ================= PART 4 ================= -->
+  <section class="part" id="p4">
+    <div class="part-head"><span class="part-no">Part 4</span><h2>Run your first task</h2></div>
+    <p class="lede">Five things happen, and you are only needed for the first three. Everything is typed into the Claude panel, not the terminal.</p>
+
+    <div class="step" data-step="f1">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>1</span></button>
+      <div class="step-body">
+        <h3>Describe what you want, in your own words</h3>
+        <p class="fine">Click into the Claude panel and type. Start with <code>/sf-task</code> and then just explain the job the way you would to a colleague. No technical words needed.</p>
+        <div class="cmd"><div class="cmd-top"><span class="where">in the Claude panel — an example</span><button class="copy" type="button">Copy</button></div><pre>/sf-task Our office lends equipment to employees — laptops, projectors, tools.
+Today it is a spreadsheet at reception and things go missing. We want a register
+of what we own, who has what right now, and a simple screen where reception can
+hand an item out and take it back. Reception should see which items are overdue.
+An item that is already out must not be handed out again until it is returned.
+Task: WS-001. Org: workshop. Base branch: main.</pre></div>
+        <p class="fine">The last line is optional detail that saves questions later:</p>
+        <div class="tbl" style="margin-top:9px">
+          <div class="tr"><span class="tk"><code>Task:</code></span><span class="tv">Any reference number you like. It names the folder your paperwork goes into.</span></div>
+          <div class="tr"><span class="tk"><code>Org:</code></span><span class="tv">The nickname from Part 3 — <code>workshop</code>.</span></div>
+          <div class="tr"><span class="tk"><code>Base branch:</code></span><span class="tv">Which version of the project to start from. Usually <code>main</code>. Ask your team if unsure.</span></div>
+        </div>
+        <p class="fine" style="margin-top:11px">Leave any of them out and you will simply be asked.</p>
+      </div>
+    </div>
+
+    <div class="step" data-step="f2">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>2</span></button>
+      <div class="step-body">
+        <h3>Answer the interview</h3>
+        <p class="fine">You get a series of multiple-choice questions about your business — never about technology. The suggested answer comes first and is marked. Pick with the arrow keys and Enter, or click. There is always an <strong>Other</strong> if nothing fits.</p>
+        <p class="fine">Expect to be asked: who uses it, what they do step by step, <strong>what must never happen</strong>, how much data, what you explicitly do <em>not</em> want, and how you will check it works.</p>
+        <div class="tip"><strong>This is where you keep the work small.</strong> Every "no, we don't need that" here removes a whole chunk of building. Be decisive.</div>
+      </div>
+    </div>
+
+    <div class="step" data-step="f3">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>3</span></button>
+      <div class="step-body">
+        <h3>Confirm the write-up, then approve the plan</h3>
+        <p class="fine">Two checkpoints, a little while apart.</p>
+        <ul class="plain">
+          <li><strong>First</strong>, your answers are read back as a short summary. Say yes, or say what is wrong.</li>
+          <li><strong>Then</strong> — after it has investigated your Salesforce and designed something — you get a short plan to approve. Read the section called <strong>"what it will not do"</strong> carefully. That is where things you might have wanted were deliberately left out.</li>
+          <li>Choose <strong>Approve</strong>, <strong>Change something</strong>, or <strong>Show me the technical detail</strong>. Looking at the detail approves nothing — it is safe.</li>
+        </ul>
+        <div class="warn"><b>Nothing is built before you approve</b>And once you do, you are not needed again until it is finished.</div>
+      </div>
+    </div>
+
+    <div class="step" data-step="f4">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>4</span></button>
+      <div class="step-body">
+        <h3>Leave it alone</h3>
+        <p class="fine">It now builds, installs into your practice Salesforce, tests, reviews its own work and writes the handover documents. A small task takes an afternoon. You can close the laptop lid — but do not close VS Code while it is working.</p>
+        <p class="fine">Lines scroll past showing what it is doing. You do not need to read them.</p>
+      </div>
+    </div>
+
+    <div class="step" data-step="f5">
+      <button class="tick" type="button" aria-pressed="false" aria-label="Mark step complete"><span>5</span></button>
+      <div class="step-body">
+        <h3>Read the report, then try it yourself</h3>
+        <p class="fine">You get a plain-language summary of what a user can now do, how it was checked, where the guides are, and anything to know before it goes live.</p>
+        <ul class="plain">
+          <li>Open your practice Salesforce and walk through the thing you asked for. Five minutes of clicking is worth more than any report.</li>
+          <li>Open the user guide it wrote — it should describe something you recognise.</li>
+          <li>Hand it to your developers for the real release. The agents stop at your practice org, always.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PART 5 ================= -->
+  <section class="part" id="p5">
+    <div class="part-head"><span class="part-no">Part 5</span><h2>The commands you will use</h2></div>
+    <p class="lede">Four, and you will mostly use the first. All typed into the Claude panel.</p>
+    <div class="tbl">
+      <div class="tr"><span class="tk"><code>/sf-task</code> + your description</span><span class="tv">The full job: questions, design, your approval, build, test, review, handover. This is the one.</span></div>
+      <div class="tr"><span class="tk"><code>/sf-task WS-001</code></span><span class="tv">Just the reference number — picks up a task that was interrupted, or builds a design you agreed earlier. It works out by itself how far it got.</span></div>
+      <div class="tr"><span class="tk"><code>/sf-plan</code> + your description</span><span class="tv">Questions and a design only — then it stops. Use it to agree an approach, or size something, before committing to the build.</span></div>
+      <div class="tr"><span class="tk"><code>/sf-review</code></span><span class="tv">Reviews whatever is on your branch against the project's standards. Works on hand-written code too.</span></div>
+      <div class="tr"><span class="tk"><code>/sf-task WS-001 --restart</code></span><span class="tv">Throws a task away and begins again. It shows you exactly what will be deleted and waits for you to type yes.</span></div>
+    </div>
+    <div class="tip" style="margin-top:16px"><strong>If you close VS Code mid-task</strong>, nothing is lost. Reopen the project and type <code>/sf-task</code> with just the reference number.</div>
+  </section>
+
+  <!-- ================= PART 6 ================= -->
+  <section class="part" id="p6">
+    <div class="part-head"><span class="part-no">Part 6</span><h2>Where your files end up</h2></div>
+    <p class="lede">One folder per task, named after your reference number, inside <code>agent-tasks</code>. You can open any of it from the file list on the left of VS Code.</p>
+    <div class="tbl">
+      <div class="tr"><span class="tk"><code>request</code></span><span class="tv">Your own words, kept exactly. Your request, every question and answer, and the scope you confirmed.</span></div>
+      <div class="tr"><span class="tk"><code>design</code></span><span class="tv">What it found in your Salesforce, <strong>the plan you approved</strong> (as a Word file), the criticism it survived, and the full technical design.</span></div>
+      <div class="tr"><span class="tk"><code>plan</code></span><span class="tv">The build broken into ordered pieces.</span></div>
+      <div class="tr"><span class="tk"><code>data</code></span><span class="tv">Optional — samples and evidence that are not documents.</span></div>
+      <div class="tr"><span class="tk"><code>deployment</code></span><span class="tv">For whoever moves this to the live system: exactly what to move, and anything that must be done by hand.</span></div>
+      <div class="tr"><span class="tk"><code>docs</code></span><span class="tv">Two Word guides ready to hand over — one for administrators, one for the people who will use it.</span></div>
+    </div>
+    <div class="tip" style="margin-top:16px"><strong>The two you will actually open:</strong> <code>design/design-brief.docx</code> when you are asked to approve, and <code>docs/user-guide.docx</code> at the end.</div>
+  </section>
+
+  <!-- ================= PART 7 ================= -->
+  <section class="part" id="p7">
+    <div class="part-head"><span class="part-no">Part 7</span><h2>If something breaks</h2></div>
+    <p class="lede">Nearly everything that goes wrong is one of these. Click the one that matches.</p>
+    <div class="tsh">
+      <details class="ts"><summary>"<code>sf</code> is not recognised" / "<code>node</code> is not recognised" / "<code>git</code> is not recognised"</summary><div class="ts-body">
+        <p class="fine">The tool is installed but this terminal window does not know about it yet. <strong>Close the terminal and open a new one.</strong> In VS Code: click the bin icon on the terminal panel, then <strong>Terminal → New Terminal</strong>.</p>
+        <p class="fine">If a new terminal still does not recognise it, the install did not finish — run the install command from Part 1 again and watch for errors.</p>
+      </div></details>
+
+      <details class="ts"><summary>"This directory does not contain a valid Salesforce DX project"</summary><div class="ts-body">
+        <p class="fine">Your terminal is standing in the wrong folder. Run <code>pwd</code> to see where it is. It must be the folder containing <code>sfdx-project.json</code>.</p>
+        <p class="fine">Quickest fix: close the terminal panel and open a fresh one — VS Code always starts it in the folder you opened.</p>
+      </div></details>
+
+      <details class="ts"><summary>"Cannot find module .claude/scripts/check-tools.js"</summary><div class="ts-body">
+        <p class="fine">Same cause as above — wrong folder, or you opened the wrong folder in VS Code. Check with <code>dir</code> that you can see <code>CLAUDE.md</code>. If you cannot, use <strong>File → Open Folder…</strong> and pick the project folder itself.</p>
+      </div></details>
+
+      <details class="ts"><summary>The agent cannot find CLAUDE.md, or <code>/sf-task</code> is not offered</summary><div class="ts-body">
+        <p class="fine">Either you opened the wrong folder in VS Code, or the agent setup was never copied in. In the file list on the left you must be able to see <code>CLAUDE.md</code> and <code>sfdx-project.json</code> together.</p>
+        <p class="fine">If <code>CLAUDE.md</code> is missing, go back to Part 2 and follow the "I am the first one" path.</p>
+      </div></details>
+
+      <details class="ts"><summary>I copied the files but <code>.claude</code> is not there</summary><div class="ts-body">
+        <p class="fine">You almost certainly dragged the folders in File Explorer, which skips hidden items. Run the <code>robocopy</code> command from Part 2 step 5 — it copies hidden items correctly.</p>
+        <p class="fine">To see hidden items in File Explorer: <strong>View → Show → Hidden items</strong>.</p>
+      </div></details>
+
+      <details class="ts"><summary>I pushed to GitHub but <code>.claude</code> is not on the website</summary><div class="ts-body">
+        <p class="fine">The Salesforce project probably has a rule telling Git to ignore those files. Open the file called <code>.gitignore</code> in the project and look for a line mentioning <code>.claude</code>. Remove that line, then run the <code>git add</code>, <code>git commit</code> and <code>git push</code> steps again.</p>
+      </div></details>
+
+      <details class="ts"><summary>Git keeps asking for a username and password</summary><div class="ts-body">
+        <p class="fine">Run <code>gh auth login</code> (Part 1 step 8). Choose GitHub.com → HTTPS → Yes → Login with a web browser.</p>
+        <p class="fine">If your company uses single sign-on, GitHub may also need you to authorise your access once. The error message contains a link — open it and click <strong>Authorize</strong>.</p>
+      </div></details>
+
+      <details class="ts"><summary>The agent says my Salesforce is a production org and stops</summary><div class="ts-body">
+        <p class="fine">You connected the live system instead of a practice one. This is deliberate and cannot be overridden. Connect a practice org instead:</p>
+        <p class="fine"><code>sf org login web -a workshop</code> then <code>sf config set target-org workshop</code>.</p>
+      </div></details>
+
+      <details class="ts"><summary>It stopped and is asking me something</summary><div class="ts-body">
+        <p class="fine">That is normal and not an error. It stops rather than guess. You will get a specific question with options and their consequences — answer in the same chat and it carries on from where it stopped.</p>
+      </div></details>
+
+      <details class="ts"><summary>It says Word or Office is not available</summary><div class="ts-body">
+        <p class="fine">The design document and the handover guides are produced through Microsoft Word itself. Without desktop Word installed, a task stops at the first document. There is no workaround in the project — it needs a real Word installation.</p>
+      </div></details>
+
+      <details class="ts"><summary>A command printed a wall of red text</summary><div class="ts-body">
+        <p class="fine">Read the <em>first</em> few lines, not the last. The first line is usually the actual problem; everything after it is noise.</p>
+        <p class="fine">If it is still unclear, paste the whole thing into the Claude panel and ask what it means. That is a perfectly good use of it.</p>
+      </div></details>
+    </div>
+  </section>
+
+  <!-- ================= PART 8 ================= -->
+  <section class="part" id="p8">
+    <div class="part-head"><span class="part-no">Part 8</span><h2>Words you will hear</h2></div>
+    <p class="lede">You do not need to use any of these. You will see them scroll past, and it helps to know they are ordinary things with intimidating names.</p>
+    <div class="gloss">
+      <details class="term"><summary>Terminal</summary><p>The text window where you type commands. Always "standing in" one folder — which folder matters, because commands act on it.</p></details>
+      <details class="term"><summary>Repository (repo)</summary><p>A project stored on GitHub, with every version of every file it has ever had. You download a copy; your copy stays linked to the original.</p></details>
+      <details class="term"><summary>Clone</summary><p>Downloading a repository to your laptop for the first time.</p></details>
+      <details class="term"><summary>Branch</summary><p>A safe side-copy where work happens, so the team's main version is never disturbed until the work is finished and reviewed.</p></details>
+      <details class="term"><summary>Commit · push</summary><p>A <em>commit</em> is a labelled snapshot of your work. A <em>push</em> sends your snapshots to GitHub for the team. The agents do both for you, after every stage.</p></details>
+      <details class="term"><summary>Pull request</summary><p>Formally proposing that your branch be folded into the team's main version. A human opens it, reviews it, and approves it.</p></details>
+      <details class="term"><summary>SFDX project</summary><p>A Salesforce project laid out in the standard way, with a file called <code>sfdx-project.json</code> at the top. That file is how the tools know the folder is a Salesforce project.</p></details>
+      <details class="term"><summary>Org</summary><p>One Salesforce system. Your company has several — a live one and practice copies. The agents only ever work in a practice one.</p></details>
+      <details class="term"><summary>Production</summary><p>The live Salesforce the business runs on. Strictly off limits to the agents, with no override.</p></details>
+      <details class="term"><summary>Deploy</summary><p>Installing the finished work into a Salesforce system so it actually exists there and can be used.</p></details>
+      <details class="term"><summary>Metadata</summary><p>The shape of your Salesforce — fields, screens, rules, permissions. As opposed to the data, which is the actual records.</p></details>
+      <details class="term"><summary>Object · field</summary><p>An object is a kind of thing you store — an item of equipment, a loan. A field is one piece of information about it — its asset tag, its due date.</p></details>
+      <details class="term"><summary>Apex</summary><p>Salesforce's programming language. Used when a rule is too complex to configure by pointing and clicking.</p></details>
+      <details class="term"><summary>Flow</summary><p>Automation built by configuring rather than programming. Preferred where it is enough, because an administrator can change it later.</p></details>
+      <details class="term"><summary>LWC</summary><p>Lightning Web Component — a custom screen, for when the standard Salesforce layouts will not do.</p></details>
+      <details class="term"><summary>Permission set</summary><p>A bundle of access rights granted to particular people. "Reception can use the loan screen" is a permission set.</p></details>
+      <details class="term"><summary>Test coverage</summary><p>How much of the new code the automated tests actually exercise. Salesforce refuses work into a live system below a set threshold.</p></details>
+      <details class="term"><summary>Static analysis</summary><p>An automatic inspection for known bad patterns — security holes, inefficiency — without running anything.</p></details>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- tiny storage wrapper (may be unavailable or throw) ---------- */
+  var KEY = 'aiguide.v1';
+  function load(){
+    try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; }
+    catch(e){ return {}; }
+  }
+  function save(state){
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){ /* private mode: carry on */ }
+  }
+  var state = load();
+  if (!state.ticks) state.ticks = {};
+
+  /* ---------- repo links fill the commands ---------- */
+  var r1 = document.getElementById('repo1');
+  var r2 = document.getElementById('repo2');
+
+  function folderFromUrl(url){
+    if (!url) return '';
+    var s = String(url).trim().replace(/\/+$/, '').replace(/\.git$/i, '');
+    var parts = s.split(/[\/:]/);
+    return parts[parts.length - 1] || '';
+  }
+  function projectPath(){
+    var f = folderFromUrl(r1 ? r1.value : '');
+    return 'C:\\Work\\' + (f || 'salesforce-project');
+  }
+  function applyLinks(){
+    var url1 = (r1 && r1.value.trim()) || '';
+    var url2 = (r2 && r2.value.trim()) || '';
+    var f1 = folderFromUrl(url1) || 'salesforce-project';
+    var path1 = projectPath();
+
+    var fn = document.getElementById('folder1');
+    if (fn) fn.textContent = f1;
+
+    Array.prototype.forEach.call(document.querySelectorAll('.f1'), function(el){
+      el.textContent = path1;
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll('pre[data-tpl]'), function(pre){
+      if (!url1 && !url2) return;          /* nothing pasted yet — keep the placeholders */
+      var tpl = pre.getAttribute('data-tpl');
+      if (/\{R1\}/.test(tpl) && !url1) return;
+      if (/\{R2\}/.test(tpl) && !url2) return;
+      var out = tpl.replace(/\{R1\}/g, url1).replace(/\{R2\}/g, url2).replace(/\{F1\}/g, path1);
+      pre.textContent = out;
+    });
+
+    state.r1 = url1; state.r2 = url2; save(state);
+  }
+  if (r1 && state.r1) r1.value = state.r1;
+  if (r2 && state.r2) r2.value = state.r2;
+  if (r1) r1.addEventListener('input', applyLinks);
+  if (r2) r2.addEventListener('input', applyLinks);
+  applyLinks();
+
+  /* ---------- copy buttons ---------- */
+  function flash(btn){
+    var old = btn.textContent;
+    btn.textContent = 'Copied';
+    btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = old; btn.classList.remove('ok'); }, 1600);
+  }
+  function legacyCopy(text, btn){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly','');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); flash(btn); } catch(e){ btn.textContent = 'Select it'; }
+    document.body.removeChild(ta);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.copy'), function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.closest('.cmd');
+      var pre = box && box.querySelector('pre');
+      if (!pre) return;
+      var text = pre.textContent;
+      if (navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(text).then(function(){ flash(btn); }, function(){ legacyCopy(text, btn); });
+      } else {
+        legacyCopy(text, btn);
+      }
+    });
+  });
+
+  /* ---------- path A / B ---------- */
+  var pathA = document.getElementById('pathA');
+  var pathB = document.getElementById('pathB');
+  var switchBtns = Array.prototype.slice.call(document.querySelectorAll('#pathSwitch button'));
+  function setPath(p){
+    switchBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.path === p ? 'true' : 'false'); });
+    if (pathA) pathA.hidden = (p !== 'a');
+    if (pathB) pathB.hidden = (p !== 'b');
+    state.path = p; save(state);
+    countTicks();
+  }
+  switchBtns.forEach(function(b){ b.addEventListener('click', function(){ setPath(b.dataset.path); }); });
+  setPath(state.path === 'b' ? 'b' : 'a');
+
+  /* ---------- ticks + progress ---------- */
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var pdone = document.getElementById('pdone');
+  var ptot = document.getElementById('ptot');
+  var pbar = document.getElementById('pbar');
+
+  function visible(step){
+    return !(step.closest('[hidden]'));
+  }
+  function countTicks(){
+    var vis = steps.filter(visible);
+    var done = vis.filter(function(s){ return s.classList.contains('done'); }).length;
+    if (pdone) pdone.textContent = done;
+    if (ptot) ptot.textContent = vis.length;
+    if (pbar) pbar.style.width = vis.length ? ((done / vis.length) * 100) + '%' : '0%';
+  }
+  steps.forEach(function(step){
+    var id = step.dataset.step;
+    var btn = step.querySelector('.tick');
+    if (state.ticks[id]){ step.classList.add('done'); if (btn) btn.setAttribute('aria-pressed','true'); }
+    if (!btn) return;
+    btn.addEventListener('click', function(){
+      var on = !step.classList.contains('done');
+      step.classList.toggle('done', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      state.ticks[id] = on;
+      save(state);
+      countTicks();
+    });
+  });
+  countTicks();
+
+  var reset = document.getElementById('resetAll');
+  if (reset) reset.addEventListener('click', function(){
+    state.ticks = {};
+    save(state);
+    steps.forEach(function(s){
+      s.classList.remove('done');
+      var b = s.querySelector('.tick');
+      if (b) b.setAttribute('aria-pressed','false');
+    });
+    countTicks();
+  });
+
+  /* ---------- contents highlight ---------- */
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var parts = links.map(function(a){ return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+  if ('IntersectionObserver' in window && parts.length){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (!en.isIntersecting) return;
+        links.forEach(function(a){
+          a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id);
+        });
+      });
+    }, { rootMargin: '-10% 0px -75% 0px' });
+    parts.forEach(function(p){ io.observe(p); });
+  }
+})();
+</script>
+</body>
+</html>

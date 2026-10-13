@@ -1,0 +1,1364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>From Request to Release</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#f5f7f9;
+    --surface:#ffffff;
+    --surface-2:#eceff4;
+    --ink:#14181e;
+    --ink-2:#4c5563;
+    --ink-3:#737e8d;
+    --line:#dce1e8;
+    --line-2:#c4ccd7;
+    --accent:#a85c17;
+    --accent-ink:#8a4a10;
+    --accent-soft:#f8ecdd;
+    --accent-line:#e2c49f;
+    --go:#2c7350;
+    --go-soft:#e3f0e9;
+    --go-line:#aed4c1;
+
+    /* VS Code mock — fixed in both themes, this is a screenshot not a surface */
+    --vs-title:#323233;
+    --vs-side:#252526;
+    --vs-bg:#1e1e1e;
+    --vs-panel:#1b1b1c;
+    --vs-status:#0e639c;
+    --vs-text:#d4d4d4;
+    --vs-dim:#8c8c8c;
+    --vs-line:#333336;
+    --vs-blue:#4fc1ff;
+    --vs-green:#6a9955;
+    --vs-amber:#dcb67a;
+    --vs-sel:#094771;
+
+    --font-display:'Archivo','Segoe UI',system-ui,-apple-system,sans-serif;
+    --font-body:'IBM Plex Sans','Segoe UI',system-ui,-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono',Consolas,'Courier New',monospace;
+
+    --radius:10px;
+    --maxw:1120px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#111419;
+      --surface:#191d23;
+      --surface-2:#222730;
+      --ink:#e8ebf0;
+      --ink-2:#b0b9c6;
+      --ink-3:#848e9c;
+      --line:#2a2f38;
+      --line-2:#3a414c;
+      --accent:#eda257;
+      --accent-ink:#f2b878;
+      --accent-soft:#2e2316;
+      --accent-line:#5c4426;
+      --go:#5fb98a;
+      --go-soft:#16241d;
+      --go-line:#2f5543;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#111419;
+    --surface:#191d23;
+    --surface-2:#222730;
+    --ink:#e8ebf0;
+    --ink-2:#b0b9c6;
+    --ink-3:#848e9c;
+    --line:#2a2f38;
+    --line-2:#3a414c;
+    --accent:#eda257;
+    --accent-ink:#f2b878;
+    --accent-soft:#2e2316;
+    --accent-line:#5c4426;
+    --go:#5fb98a;
+    --go-soft:#16241d;
+    --go-line:#2f5543;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:104px;
+  }
+  img{max-width:100%}
+  [hidden]{display:none !important}
+  :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  /* ---------- deck chrome ---------- */
+  .topbar{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:40;
+    background:var(--ground);
+    background:color-mix(in srgb, var(--ground) 92%, transparent);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-in{
+    max-width:var(--maxw);margin:0 auto;
+    padding:10px 20px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .brand{
+    font-family:var(--font-display);font-weight:700;font-size:.95rem;
+    letter-spacing:-.01em;margin-right:auto;
+  }
+  .brand span{color:var(--ink-3);font-weight:500}
+  .counter{
+    font-family:var(--font-mono);font-size:.78rem;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .progress{height:3px;background:var(--line);overflow:hidden}
+  .progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .35s ease}
+
+  main{max-width:var(--maxw);margin:0 auto;padding:0 20px;padding-block:34px 10px}
+
+  .slide{animation:rise .32s ease both}
+  @keyframes rise{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){
+    .slide{animation:none}
+    *{transition-duration:.01ms !important}
+  }
+
+  .eyebrow{
+    font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink-3);margin:0 0 10px;
+  }
+  .eyebrow.is-you{color:var(--accent)}
+  h1{
+    font-family:var(--font-display);font-weight:700;
+    font-size:clamp(1.95rem,1.25rem + 2.6vw,3rem);
+    line-height:1.08;letter-spacing:-.025em;margin:0 0 16px;text-wrap:balance;
+  }
+  h2{
+    font-family:var(--font-display);font-weight:600;
+    font-size:clamp(1.5rem,1.15rem + 1.5vw,2.1rem);
+    line-height:1.15;letter-spacing:-.02em;margin:0 0 14px;text-wrap:balance;
+  }
+  h3{font-family:var(--font-display);font-weight:600;font-size:1.05rem;letter-spacing:-.01em;margin:0 0 6px}
+  p{margin:0 0 14px;max-width:66ch}
+  .lede{font-size:1.1rem;color:var(--ink-2);max-width:62ch}
+  .fine{font-size:.9rem;color:var(--ink-3)}
+  strong{font-weight:600}
+  code{font-family:var(--font-mono);font-size:.88em;background:var(--surface-2);padding:1px 5px;border-radius:4px}
+
+  .stack{display:flex;flex-direction:column;gap:22px}
+  .cols{display:grid;gap:22px}
+  @media (min-width:860px){
+    .cols-2{grid-template-columns:1fr 1fr}
+    .cols-side{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);align-items:start}
+  }
+
+  .card{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:18px 20px;
+  }
+  .card p:last-child{margin-bottom:0}
+  .card--you{border-color:var(--accent-line);background:var(--accent-soft)}
+  .card--go{border-color:var(--go-line);background:var(--go-soft)}
+
+  .tag{
+    display:inline-block;font-family:var(--font-mono);font-size:.68rem;
+    letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:99px;
+    border:1px solid var(--line-2);color:var(--ink-3);white-space:nowrap;
+  }
+  .tag--you{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent-ink)}
+  .tag--auto{border-color:var(--line-2);background:var(--surface-2);color:var(--ink-3)}
+  .tag--go{border-color:var(--go-line);background:var(--go-soft);color:var(--go)}
+
+  /* cast */
+  .cast{display:grid;gap:12px}
+  @media (min-width:760px){.cast{grid-template-columns:repeat(2,1fr)}}
+  .cast-row{
+    display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;
+  }
+  .cast-row.is-you{border-color:var(--accent-line);background:var(--accent-soft)}
+  .avatar{
+    width:38px;height:38px;border-radius:9px;display:grid;place-items:center;
+    background:var(--surface-2);border:1px solid var(--line-2);
+    font-family:var(--font-display);font-weight:700;font-size:.95rem;color:var(--ink-2);
+  }
+  .cast-row.is-you .avatar{background:var(--accent);border-color:var(--accent);color:#fff}
+  .cast-row h3{margin-bottom:2px}
+  .cast-row p{font-size:.92rem;color:var(--ink-2);margin:0}
+
+  /* journey */
+  .journey{display:flex;flex-direction:column;gap:0}
+  .leg{
+    display:grid;grid-template-columns:34px 1fr auto;gap:16px;align-items:start;
+    padding:14px 0;border-bottom:1px solid var(--line);
+  }
+  .leg:last-child{border-bottom:0}
+  .leg-mark{
+    width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+    border:1px solid var(--line-2);background:var(--surface);
+    font-family:var(--font-mono);font-size:.78rem;color:var(--ink-3);position:relative;
+  }
+  .leg.is-you .leg-mark{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+  .leg-mark::after{
+    content:"";position:absolute;top:34px;left:50%;width:1px;height:calc(100% + 14px);
+    background:var(--line);transform:translateX(-.5px);
+  }
+  .leg:last-child .leg-mark::after{display:none}
+  .leg h3{margin-bottom:2px}
+  .leg p{margin:0;font-size:.93rem;color:var(--ink-2);max-width:58ch}
+
+  /* ---------- VS Code mock ---------- */
+  .mockwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .vscode{
+    min-width:520px;
+    border-radius:9px;overflow:hidden;border:1px solid #0c0c0c;
+    box-shadow:0 14px 34px -18px rgba(0,0,0,.55);
+    font-family:var(--font-body);color:var(--vs-text);
+  }
+  .vs-title{
+    background:var(--vs-title);display:flex;align-items:center;gap:10px;
+    padding:7px 11px;font-size:.74rem;color:#bdbdbd;
+  }
+  .dots{display:flex;gap:6px}
+  .dots i{width:11px;height:11px;border-radius:50%;background:#5a5a5c;display:block}
+  .dots i:first-child{background:#ec6a5e}.dots i:nth-child(2){background:#f4bf4f}.dots i:nth-child(3){background:#61c454}
+  .vs-main{display:grid;grid-template-columns:46px 190px minmax(0,1fr) minmax(0,1.15fr);background:var(--vs-bg);min-height:360px}
+  .vs-main--narrow{grid-template-columns:46px minmax(0,1fr)}
+  .vs-act{
+    background:var(--vs-side);border-right:1px solid var(--vs-line);
+    display:flex;flex-direction:column;align-items:center;gap:16px;padding:12px 0;position:relative;
+  }
+  .vs-act svg{width:21px;height:21px;stroke:#868686;fill:none;stroke-width:1.5}
+  .vs-act .on svg{stroke:#e7e7e7}
+  .vs-act .on{border-left:2px solid #e7e7e7;margin-left:-2px;padding-left:2px}
+  .vs-side{background:var(--vs-side);border-right:1px solid var(--vs-line);padding:10px 0;font-size:.76rem;position:relative}
+  .vs-side h4{
+    margin:0 0 8px;padding:0 12px;font-family:var(--font-body);font-weight:600;
+    font-size:.67rem;letter-spacing:.08em;text-transform:uppercase;color:#a8a8a8;
+  }
+  .tree{list-style:none;margin:0;padding:0}
+  .tree li{padding:2.5px 12px 2.5px 0;color:#cfcfcf;white-space:nowrap;display:flex;align-items:center;gap:5px}
+  .tree .ind1{padding-left:14px}.tree .ind2{padding-left:28px}.tree .ind3{padding-left:42px}
+  .tree .fold{color:#d7ba7d}
+  .tree .hi{background:var(--vs-sel);color:#fff;border-radius:3px}
+  .vs-editor{background:var(--vs-bg);position:relative;min-width:0;border-right:1px solid var(--vs-line)}
+  .vs-tabs{display:flex;background:var(--vs-side);border-bottom:1px solid var(--vs-line)}
+  .vs-tab{padding:7px 14px;font-size:.74rem;color:#9b9b9b;border-right:1px solid var(--vs-line)}
+  .vs-tab.on{background:var(--vs-bg);color:#fff}
+  .vs-code{padding:12px 14px;font-family:var(--font-mono);font-size:.72rem;line-height:1.75;color:#c8c8c8;overflow:hidden}
+  .vs-code .c{color:var(--vs-green)}.vs-code .k{color:#569cd6}.vs-code .s{color:#ce9178}.vs-code .n{color:#4a4a4a;user-select:none;margin-right:12px}
+  .vs-status{background:var(--vs-status);color:#fff;font-size:.7rem;padding:4px 12px;display:flex;gap:16px;align-items:center;position:relative}
+  .vs-status span{opacity:.95}
+
+  /* Claude panel */
+  .vs-claude{background:var(--vs-panel);display:flex;flex-direction:column;min-width:0;position:relative}
+  .vs-claude--solo{min-height:440px}
+  .vs-claude-head{
+    padding:8px 12px;border-bottom:1px solid var(--vs-line);
+    font-size:.72rem;color:#b6b6b6;display:flex;align-items:center;gap:8px;background:var(--vs-side);
+  }
+  .pulse{width:7px;height:7px;border-radius:50%;background:#6ec07a;flex:none}
+  .vs-chat{padding:12px;display:flex;flex-direction:column;gap:9px;font-size:.78rem;overflow:hidden;flex:1}
+  .msg{border-radius:8px;padding:9px 11px;line-height:1.55;max-width:100%}
+  .msg--you{background:#2b3a4a;border:1px solid #38516b;color:#dbe7f2}
+  .msg--you .who{color:#8fc0ec}
+  .msg--ai{background:#232324;border:1px solid var(--vs-line);color:#d2d2d2}
+  .msg .who{
+    display:block;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.1em;
+    text-transform:uppercase;color:#8a8a8a;margin-bottom:5px;
+  }
+  .msg p{margin:0 0 7px;max-width:none}
+  .msg p:last-child{margin:0}
+  .msg .mono{font-family:var(--font-mono);font-size:.72rem;color:#c9c9c9;white-space:pre-wrap;line-height:1.6}
+  .tool{
+    display:flex;gap:7px;align-items:center;font-family:var(--font-mono);font-size:.68rem;
+    color:#7f7f7f;padding:3px 2px;
+  }
+  .tool b{color:#9fb8cc;font-weight:400}
+  .tool .ok{color:#6ec07a}
+
+  /* ask card inside the panel */
+  .ask{border:1px solid #3d4752;border-radius:8px;background:#20262c;overflow:hidden}
+  .ask-q{padding:10px 12px;border-bottom:1px solid #30383f;font-size:.8rem;color:#eaeef2;font-weight:600;line-height:1.45}
+  .ask-opts{display:flex;flex-direction:column}
+  .opt{
+    display:flex;gap:9px;align-items:flex-start;width:100%;text-align:left;
+    background:none;border:0;border-bottom:1px solid #2a3137;color:#cdd4da;
+    padding:9px 12px;font:inherit;font-size:.76rem;line-height:1.45;cursor:pointer;
+  }
+  .opt:last-child{border-bottom:0}
+  .opt:hover{background:#273039}
+  .opt .key{
+    font-family:var(--font-mono);font-size:.68rem;color:#8a949e;border:1px solid #3d4752;
+    border-radius:4px;padding:0 5px;flex:none;margin-top:1px;
+  }
+  .opt .rec{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:#e0a86a;margin-left:5px}
+  .opt[aria-pressed="true"]{background:#1f3a2b;color:#dff0e4}
+  .opt[aria-pressed="true"] .key{border-color:#4e8c67;color:#8fd3a8}
+  .opt[aria-pressed="true"]::after{content:"✓";margin-left:auto;color:#8fd3a8}
+  .echo{
+    font-family:var(--font-mono);font-size:.68rem;color:#8fbf9f;
+    padding:7px 11px;background:#1a241d;border:1px solid #2d4535;border-radius:7px;line-height:1.55;
+  }
+
+  /* annotation badges on the mock */
+  .pin{
+    position:absolute;z-index:3;width:21px;height:21px;border-radius:50%;
+    background:var(--accent);color:#fff;border:2px solid var(--vs-bg);
+    font-family:var(--font-mono);font-size:.68rem;display:grid;place-items:center;
+    cursor:pointer;padding:0;line-height:1;
+  }
+  .pin[aria-pressed="true"]{background:#fff;color:var(--accent);border-color:var(--accent)}
+  .pin-tl{top:7px;left:7px}.pin-tr{top:7px;right:7px}
+  .legend{display:flex;flex-direction:column;gap:9px}
+  .legend-item{
+    display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:start;
+    padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:var(--surface);
+    text-align:left;font:inherit;color:inherit;cursor:pointer;width:100%;
+  }
+  .legend-item[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+  .legend-num{
+    width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;
+    font-family:var(--font-mono);font-size:.68rem;display:grid;place-items:center;flex:none;
+  }
+  .legend-item h3{margin:0 0 1px;font-size:.95rem}
+  .legend-item p{margin:0;font-size:.88rem;color:var(--ink-2);max-width:none}
+
+  /* interactive bits */
+  .btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+  .btn{
+    font:inherit;font-family:var(--font-display);font-weight:600;font-size:.92rem;
+    border-radius:8px;padding:9px 16px;cursor:pointer;border:1px solid var(--line-2);
+    background:var(--surface);color:var(--ink);
+  }
+  .btn:hover{border-color:var(--ink-3)}
+  .btn--primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn--primary:hover{filter:brightness(1.06)}
+  .btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  .note{
+    border-left:3px solid var(--accent);background:var(--accent-soft);
+    padding:11px 14px;border-radius:0 8px 8px 0;font-size:.93rem;color:var(--ink-2);
+  }
+  .note strong{color:var(--ink)}
+  .note--go{border-left-color:var(--go);background:var(--go-soft)}
+
+  ul.plain{margin:0;padding-left:18px}
+  ul.plain li{margin-bottom:7px}
+  ul.plain li::marker{color:var(--ink-3)}
+  ol.steps{margin:0;padding-left:20px;counter-reset:s}
+  ol.steps li{margin-bottom:10px}
+
+  .kv{display:grid;gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+  .kv-row{display:grid;grid-template-columns:1fr;gap:2px;padding:12px 15px;border-bottom:1px solid var(--line)}
+  @media (min-width:700px){.kv-row{grid-template-columns:230px 1fr;gap:18px;align-items:baseline}}
+  .kv-row:last-child{border-bottom:0}
+  .kv-k{font-weight:600;font-size:.93rem}
+  .kv-v{font-size:.93rem;color:var(--ink-2)}
+
+  /* file tree explorer */
+  .explorer{display:grid;gap:14px}
+  @media (min-width:800px){.explorer{grid-template-columns:270px minmax(0,1fr);align-items:start}}
+  .folders{display:flex;flex-direction:column;gap:5px}
+  .folder{
+    display:flex;align-items:center;gap:9px;width:100%;text-align:left;font:inherit;
+    background:var(--surface);border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;cursor:pointer;color:var(--ink);font-size:.9rem;
+  }
+  .folder[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+  .folder .ic{color:var(--accent)}
+  .detail{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;min-height:200px}
+  .detail h3{font-size:1.15rem;margin-bottom:3px}
+  .detail .path{font-family:var(--font-mono);font-size:.78rem;color:var(--ink-3);margin-bottom:12px}
+  .detail ul{margin:10px 0 0;padding-left:17px}
+  .detail li{margin-bottom:6px;font-size:.92rem}
+  .detail li b{font-family:var(--font-mono);font-weight:500;font-size:.88em;color:var(--ink)}
+
+  /* build log */
+  .log{
+    background:var(--vs-panel);border:1px solid #2b2b2d;border-radius:9px;padding:13px 15px;
+    font-family:var(--font-mono);font-size:.76rem;line-height:1.95;color:#c3c3c3;min-height:260px;
+  }
+  .log div{opacity:0;transform:translateY(3px);transition:opacity .25s ease,transform .25s ease}
+  .log div.in{opacity:1;transform:none}
+  .log .t{color:#6a6a6a;margin-right:9px}
+  .log .ok{color:#6ec07a}
+  .log .wp{color:#dcb67a}
+
+  /* glossary */
+  .gloss{display:grid;gap:10px}
+  @media (min-width:720px){.gloss{grid-template-columns:1fr 1fr}}
+  details.term{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:0}
+  details.term summary{
+    cursor:pointer;padding:11px 14px;font-family:var(--font-display);font-weight:600;font-size:.95rem;
+    list-style:none;display:flex;align-items:center;gap:9px;
+  }
+  details.term summary::-webkit-details-marker{display:none}
+  details.term summary::before{content:"+";font-family:var(--font-mono);color:var(--accent);font-size:1rem;line-height:1}
+  details.term[open] summary::before{content:"–"}
+  details.term[open]{border-color:var(--accent-line)}
+  details.term p{margin:0;padding:0 14px 13px 33px;font-size:.9rem;color:var(--ink-2)}
+
+  /* bottom nav */
+  .nav{
+    position:fixed;left:0;right:0;bottom:0;z-index:50;
+    background:var(--ground);
+    background:color-mix(in srgb, var(--ground) 94%, transparent);
+    backdrop-filter:blur(8px);border-top:1px solid var(--line);
+    padding:10px 20px calc(10px + env(safe-area-inset-bottom,0px));
+  }
+  .nav-in{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;gap:14px}
+  .dots-nav{display:flex;gap:5px;flex-wrap:wrap;margin:0 auto}
+  .dot{width:9px;height:9px;border-radius:50%;border:0;background:var(--line-2);cursor:pointer;padding:0}
+  .dot[aria-current="true"]{background:var(--accent);transform:scale(1.25)}
+  .dot.is-you{box-shadow:inset 0 0 0 2px var(--accent)}
+  @media (max-width:620px){.dots-nav{display:none}}
+
+  .hint{font-size:.82rem;color:var(--ink-3);font-family:var(--font-mono)}
+  @media (max-width:620px){.hint{display:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">From Request to Release <span>· working with the AI agent</span></div>
+    <div class="counter"><span id="cur">1</span>/<span id="tot">15</span></div>
+  </div>
+  <div class="progress"><i id="bar"></i></div>
+</header>
+
+<main id="deck">
+
+  <!-- 1 ............................................................... -->
+  <section class="slide" data-title="Welcome">
+    <div class="stack">
+      <div>
+        <p class="eyebrow">A workshop walkthrough</p>
+        <h1>You describe the job.<br>It gets built.</h1>
+        <p class="lede">This is a guided tour of what happens between the sentence you type and working Salesforce functionality — tested, reviewed, documented and ready to hand over.</p>
+        <p class="lede">You will not be writing code. You will not be using a terminal. You will be answering questions about your own business, and approving a plan.</p>
+      </div>
+      <div class="cols cols-2">
+        <div class="card card--you">
+          <h3>Two moments are yours</h3>
+          <p class="fine" style="margin:0">Everything in this colour is a point where the work stops and waits for you. There are only two of them, and together they take about fifteen minutes.</p>
+        </div>
+        <div class="card">
+          <h3>Everything else runs itself</h3>
+          <p class="fine" style="margin:0">Investigation, design, criticism of that design, building, testing, deployment, code review and paperwork. You can close the laptop lid.</p>
+        </div>
+      </div>
+      <div class="btnrow">
+        <button class="btn btn--primary" data-go="1">Start the tour →</button>
+      </div>
+      <p class="hint">Tip: use ← and → on your keyboard to move through this deck.</p>
+    </div>
+  </section>
+
+  <!-- 2 ............................................................... -->
+  <section class="slide" data-title="The cast" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Who is actually doing the work</p>
+        <h2>Five specialists, one conversation</h2>
+        <p class="lede">Behind the single chat window there is a small team. Each member does one job and hands on to the next. Only one of them ever talks to you.</p>
+      </div>
+      <div class="cast">
+        <div class="cast-row is-you">
+          <div class="avatar">O</div>
+          <div>
+            <h3>The orchestrator <span class="tag tag--you" style="margin-left:4px">talks to you</span></h3>
+            <p>Your business analyst. Asks the questions, runs the whole process, writes the paperwork, saves everything. The one you type to.</p>
+          </div>
+        </div>
+        <div class="cast-row">
+          <div class="avatar">A</div>
+          <div>
+            <h3>The architect</h3>
+            <p>Investigates how your Salesforce is set up today, then designs the solution and decides the technical approach.</p>
+          </div>
+        </div>
+        <div class="cast-row">
+          <div class="avatar">C</div>
+          <div>
+            <h3>The critic</h3>
+            <p>Attacks the design looking for holes and things that cannot actually be built. It is never allowed to suggest its own idea — only to find problems.</p>
+          </div>
+        </div>
+        <div class="cast-row">
+          <div class="avatar">D</div>
+          <div>
+            <h3>The developer</h3>
+            <p>Builds the approved design. Writes the tests first, then the thing that makes them pass.</p>
+          </div>
+        </div>
+        <div class="cast-row">
+          <div class="avatar">R</div>
+          <div>
+            <h3>The reviewer</h3>
+            <p>Checks the finished work with fresh eyes, knowing nothing about why the developer did what it did. Finds problems, ranks them, sends the serious ones back.</p>
+          </div>
+        </div>
+      </div>
+      <div class="note"><strong>Why split them up?</strong> The same mind that designs something is poor at spotting its own blind spots. Separating the roles is the point, not an accident.</div>
+    </div>
+  </section>
+
+  <!-- 3 ............................................................... -->
+  <section class="slide" data-title="The journey" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Start to finish</p>
+        <h2>The shape of one task</h2>
+        <p class="lede">Nine stages. The two in amber are yours. Everything else happens without you — and saves its work as it goes, so you can see progress at any time.</p>
+      </div>
+      <div class="journey">
+        <div class="leg is-you">
+          <div class="leg-mark">1</div>
+          <div><h3>You are interviewed</h3><p>Who uses this? What must never happen? How much data? What is <em>not</em> wanted? Plain questions about your business.</p></div>
+          <span class="tag tag--you">~10 min</span>
+        </div>
+        <div class="leg">
+          <div class="leg-mark">2</div>
+          <div><h3>It investigates</h3><p>Reads your actual Salesforce setup and the existing code, so the design fits what you really have.</p></div>
+          <span class="tag tag--auto">auto</span>
+        </div>
+        <div class="leg">
+          <div class="leg-mark">3</div>
+          <div><h3>It designs, then attacks the design</h3><p>A short plan is written, then torn into by the critic, then repaired. You never see the rough draft.</p></div>
+          <span class="tag tag--auto">auto</span>
+        </div>
+        <div class="leg is-you">
+          <div class="leg-mark">4</div>
+          <div><h3>You approve the plan</h3><p>Three pages in plain language, including what it deliberately will <em>not</em> do. Approve, change it, or ask to see the technical detail.</p></div>
+          <span class="tag tag--you">~5 min</span>
+        </div>
+        <div class="leg">
+          <div class="leg-mark">5</div>
+          <div><h3>It works out the detail</h3><p>Only now does the full technical specification get written — after you have agreed the shape.</p></div>
+          <span class="tag tag--auto">auto</span>
+        </div>
+        <div class="leg">
+          <div class="leg-mark">6</div>
+          <div><h3>It builds and tests</h3><p>Tests written first, then the functionality, then installed into your Salesforce and tested there for real.</p></div>
+          <span class="tag tag--auto">auto</span>
+        </div>
+        <div class="leg">
+          <div class="leg-mark">7</div>
+          <div><h3>It reviews its own work</h3><p>A separate reviewer inspects everything and sends serious findings back to be fixed. Twice at most.</p></div>
+          <span class="tag tag--auto">auto</span>
+        </div>
+        <div class="leg">
+          <div class="leg-mark">8</div>
+          <div><h3>It writes the handover</h3><p>An installation checklist for whoever moves this to the live system, plus a guide for administrators and a guide for the people who will use it.</p></div>
+          <span class="tag tag--auto">auto</span>
+        </div>
+        <div class="leg">
+          <div class="leg-mark">9</div>
+          <div><h3>It reports back</h3><p>What you can now do, how it was checked, what to know before going live.</p></div>
+          <span class="tag tag--go">done</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 ............................................................... -->
+  <section class="slide" data-title="The screen" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Orientation</p>
+        <h2>The screen you will be looking at</h2>
+        <p class="lede">This is VS Code. It is where developers work, and it is where the agent lives. You only ever need the right-hand panel — but here is what the rest of it is, so nothing looks alarming. <strong>Click a number.</strong></p>
+      </div>
+
+      <div class="mockwrap">
+        <div class="vscode">
+          <div class="vs-title"><span class="dots"><i></i><i></i><i></i></span><span>equipment-loans — Visual Studio Code</span></div>
+          <div class="vs-main">
+            <div class="vs-act">
+              <button class="pin pin-tl" data-pin="1" aria-pressed="false" aria-label="Explain the activity bar">1</button>
+              <div style="height:14px"></div>
+              <div class="on"><svg viewBox="0 0 24 24"><path d="M4 4h7l2 2h7v13H4z"/></svg></div>
+              <div><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></div>
+              <div><svg viewBox="0 0 24 24"><circle cx="7" cy="6" r="2.5"/><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="12" r="2.5"/><path d="M7 8.5v7M9.5 17l5-3"/></svg></div>
+              <div><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 13h7v7h-7zM13 4h7v7h-7zM4 13h7v7H4z"/></svg></div>
+            </div>
+            <div class="vs-side">
+              <button class="pin pin-tr" data-pin="2" aria-pressed="false" aria-label="Explain the file explorer">2</button>
+              <h4>Explorer</h4>
+              <ul class="tree">
+                <li class="fold">▾ agent-tasks</li>
+                <li class="ind1 fold">▾ WS-001-equipment-loans</li>
+                <li class="ind2 fold">▸ request</li>
+                <li class="ind2 fold">▾ design</li>
+                <li class="ind3 hi">design-brief.docx</li>
+                <li class="ind3">discovery.md</li>
+                <li class="ind2 fold">▸ plan</li>
+                <li class="ind2 fold">▸ deployment</li>
+                <li class="ind2 fold">▸ docs</li>
+                <li class="fold">▸ force-app</li>
+                <li class="fold">▸ agent-memory</li>
+              </ul>
+            </div>
+            <div class="vs-editor">
+              <button class="pin pin-tr" data-pin="3" aria-pressed="false" aria-label="Explain the editor">3</button>
+              <div class="vs-tabs"><div class="vs-tab on">design-brief.md</div><div class="vs-tab">EquipmentLoan.cls</div></div>
+              <div class="vs-code">
+<div><span class="n">1</span><span class="k"># Design brief: WS-001 — Equipment Loan Register</span></div>
+<div><span class="n">2</span></div>
+<div><span class="n">3</span><span class="c">## 1. What the user gets</span></div>
+<div><span class="n">4</span>Reception can see every item the office owns and</div>
+<div><span class="n">5</span>who is holding it right now. Handing an item out</div>
+<div><span class="n">6</span>and taking it back are each one screen, one click.</div>
+<div><span class="n">7</span></div>
+<div><span class="n">8</span><span class="c">## 3. What it will NOT do</span></div>
+<div><span class="n">9</span>- It will not e-mail anyone. Overdue items are</div>
+<div><span class="n">10</span>&nbsp;&nbsp;visible on a list, not pushed to you.</div>
+<div><span class="n">11</span>- Employees cannot see their own loans.</div>
+              </div>
+            </div>
+            <div class="vs-claude">
+              <button class="pin pin-tl" data-pin="4" aria-pressed="false" aria-label="Explain the Claude panel">4</button>
+              <div class="vs-claude-head"><span class="pulse"></span> Claude Code</div>
+              <div class="vs-chat">
+                <div class="msg msg--you"><span class="who">You</span><p class="mono">/sf-task Our office lends company equipment to employees…</p></div>
+                <div class="tool">▸ <b>Read</b> agent-memory/MEMORY.md <span class="ok">✓</span></div>
+                <div class="tool">▸ <b>Bash</b> check-tools.js <span class="ok">✓ all present</span></div>
+                <div class="msg msg--ai"><span class="who">Orchestrator</span><p>Before I design anything, I need to understand who this is for and what it must never do. Nine short questions.</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="vs-status">
+            <button class="pin pin-tr" data-pin="5" aria-pressed="false" aria-label="Explain the status bar">5</button>
+            <span>⑂ feature/WS-001-equipment-loans</span><span>↑2</span><span>✓ 0 problems</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="legend" id="legend">
+        <button class="legend-item" data-pin="1" aria-pressed="false">
+          <span class="legend-num">1</span>
+          <span><h3>The icon strip</h3><p>Switches what the panel next to it shows. You will not need to touch it.</p></span>
+        </button>
+        <button class="legend-item" data-pin="2" aria-pressed="false">
+          <span class="legend-num">2</span>
+          <span><h3>The file list</h3><p>Every file in the project. The agent creates files here as it works — this is where you will find your design document and the guides at the end.</p></span>
+        </button>
+        <button class="legend-item" data-pin="3" aria-pressed="false">
+          <span class="legend-num">3</span>
+          <span><h3>The document you are reading</h3><p>Click any file on the left and it opens here. Design documents are plain text you can read; code is code — skip it.</p></span>
+        </button>
+        <button class="legend-item" data-pin="4" aria-pressed="false">
+          <span class="legend-num">4</span>
+          <span><h3>The conversation — <strong>this is the only part you need</strong></h3><p>You type here. The agent answers here, asks you questions here, and shows its progress here. Grey lines with a ▸ are it working; you can ignore them.</p></span>
+        </button>
+        <button class="legend-item" data-pin="5" aria-pressed="false">
+          <span class="legend-num">5</span>
+          <span><h3>The blue strip</h3><p>Shows which copy of the work you are on — here, a workspace named after your task. Think of it as "which draft am I in".</p></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 ............................................................... -->
+  <section class="slide" data-title="Step 1 — Ask" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow is-you">Step 1 of 6 · your turn</p>
+        <h2>Say what you need, in your own words</h2>
+        <p class="lede">No special format. No technical terms. Write it the way you would describe it to a colleague who knows the business but not the system.</p>
+      </div>
+      <div class="cols cols-side">
+        <div class="stack">
+          <div class="card">
+            <h3>Worth including if you know them</h3>
+            <ul class="plain" style="margin-top:8px">
+              <li><strong>A reference number</strong> for the task — anything will do. It names the folder your paperwork lands in.</li>
+              <li><strong>Which Salesforce to build in</strong> — your practice system, never the live one.</li>
+              <li><strong>A document</strong>, if you already have a specification. Point at it and it gets read.</li>
+            </ul>
+            <p class="fine" style="margin:12px 0 0">Leave any of it out and you will simply be asked.</p>
+          </div>
+          <div class="note"><strong>You cannot get this wrong.</strong> A vague request just means a slightly longer interview. Nothing is built from a misunderstanding — that is what the next two steps exist to prevent.</div>
+        </div>
+        <div class="mockwrap">
+          <div class="vscode vscode--panel">
+            <div class="vs-title"><span class="dots"><i></i><i></i><i></i></span><span>Claude Code</span></div>
+            <div class="vs-main vs-main--narrow">
+              <div class="vs-act">
+                <div style="height:14px"></div>
+                <div><svg viewBox="0 0 24 24"><path d="M4 4h7l2 2h7v13H4z"/></svg></div>
+                <div class="on"><svg viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/></svg></div>
+              </div>
+              <div class="vs-claude vs-claude--solo">
+                <div class="vs-claude-head"><span class="pulse"></span> Claude Code · ready</div>
+                <div class="vs-chat">
+                  <div class="msg msg--you"><span class="who">You</span><p class="mono">/sf-task Our office lends company equipment to employees — laptops, projectors, test devices, tools. Today it is a spreadsheet at reception and things go missing.
+
+We want this in Salesforce: a register of the equipment we own, who has what right now, and a simple screen where someone at reception can hand an item out and take it back. Reception should be able to see which items are overdue. An item that is already out must not be handed out to someone else until it has been returned.
+
+Task: WS-001. Org: workshop. Base branch: main.</p></div>
+                  <div class="tool">▸ <b>Read</b> project memory <span class="ok">✓</span></div>
+                  <div class="tool">▸ <b>Check</b> tools, Salesforce connection, workspace <span class="ok">✓</span></div>
+                  <div class="msg msg--ai"><span class="who">Orchestrator</span><p>Got it. Before anything is designed I want to understand who this is for and what it must never do — about nine short questions, all about how your office works.</p></div>
+                </div>
+              </div>
+            </div>
+            <div class="vs-status"><span>⑂ feature/WS-001-equipment-loans</span><span>✓ connected to workshop</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 ............................................................... -->
+  <section class="slide" data-title="Step 2 — Interview" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow is-you">Step 2 of 6 · your turn</p>
+        <h2>It interviews you</h2>
+        <p class="lede">Questions arrive as a short list of choices, with the suggested answer first. There is always an "Other" if none of them fit. <strong>Try answering these three.</strong></p>
+      </div>
+      <div class="cols cols-side">
+        <div class="stack">
+          <div class="card">
+            <h3>What you will be asked about</h3>
+            <ul class="plain" style="margin-top:8px">
+              <li>Who uses it, and in what role</li>
+              <li>What they see and do, step by step</li>
+              <li><strong>What must never happen</strong></li>
+              <li>Whether mistakes can be undone, and who is accountable</li>
+              <li>How often it is used, and how much data</li>
+              <li>What you explicitly do <em>not</em> want</li>
+              <li>How you will check it works</li>
+            </ul>
+          </div>
+          <div class="note"><strong>What you will never be asked:</strong> anything technical. Not which Salesforce feature to use, not what to name things, not how to build it. Those are the agent's decisions — it makes them, writes down why, and shows you a one-line summary you may overrule.</div>
+        </div>
+        <div class="mockwrap">
+          <div class="vscode vscode--panel">
+            <div class="vs-title"><span class="dots"><i></i><i></i><i></i></span><span>Claude Code</span></div>
+            <div class="vs-claude vs-claude--solo">
+              <div class="vs-claude-head"><span class="pulse"></span> Claude Code · asking</div>
+              <div class="vs-chat" id="interview">
+                <div class="ask" data-q="1">
+                  <div class="ask-q">Who hands equipment out?</div>
+                  <div class="ask-opts">
+                    <button class="opt" data-echo="Users: reception staff only."><span class="key">1</span><span>Reception staff only<span class="rec">recommended</span></span></button>
+                    <button class="opt" data-echo="Users: reception staff and any manager."><span class="key">2</span><span>Reception, and any manager</span></button>
+                    <button class="opt" data-echo="Users: employees help themselves."><span class="key">3</span><span>Employees help themselves</span></button>
+                    <button class="opt" data-echo="Users: to be defined by you."><span class="key">4</span><span>Other…</span></button>
+                  </div>
+                </div>
+                <div class="echo" data-for="1" hidden></div>
+
+                <div class="ask" data-q="2">
+                  <div class="ask-q">How should reception see which items are overdue?</div>
+                  <div class="ask-opts">
+                    <button class="opt" data-echo="Overdue: a list they open, plus a marker on the screen. No alerts."><span class="key">1</span><span>A list they open, plus a marker on the screen<span class="rec">recommended</span></span></button>
+                    <button class="opt" data-echo="Overdue: an alert sent to reception each morning. (Bigger build — adds a daily scheduled job.)"><span class="key">2</span><span>An alert that comes to them each morning</span></button>
+                    <button class="opt" data-echo="Overdue: not shown at all."><span class="key">3</span><span>Don't show it — we will work it out ourselves</span></button>
+                  </div>
+                </div>
+                <div class="echo" data-for="2" hidden></div>
+
+                <div class="ask" data-q="3">
+                  <div class="ask-q">What must the system actively prevent?</div>
+                  <div class="ask-opts">
+                    <button class="opt" data-echo="Hard rule: an item already out cannot be handed out again. Lost or in-repair items cannot be lent."><span class="key">1</span><span>Lending an item that is already out, lost or in repair<span class="rec">recommended</span></span></button>
+                    <button class="opt" data-echo="Hard rule: an item already out cannot be handed out again."><span class="key">2</span><span>Only lending an item that is already out</span></button>
+                    <button class="opt" data-echo="Hard rule: none — reception uses judgement."><span class="key">3</span><span>Nothing — reception will use their judgement</span></button>
+                  </div>
+                </div>
+                <div class="echo" data-for="3" hidden></div>
+
+                <div class="msg msg--ai" id="iv-done" hidden><span class="who">Orchestrator</span><p>That is everything I need. Writing it up now — you will see it back in a moment for confirmation.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 ............................................................... -->
+  <section class="slide" data-title="Step 3 — Read-back" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow is-you">Step 3 of 6 · your turn</p>
+        <h2>It reads your answers back</h2>
+        <p class="lede">Your answers become a short written scope — in your language, not technical language. Nothing proceeds until you confirm it says what you meant.</p>
+      </div>
+      <div class="cols cols-side">
+        <div class="stack">
+          <div class="card card--you">
+            <h3>This is the cheapest moment to change your mind</h3>
+            <p class="fine" style="margin:0">Correcting the scope here costs one sentence. Discovering the misunderstanding after it is built costs the whole task. Read it properly.</p>
+          </div>
+          <div class="card">
+            <h3>Where it is saved</h3>
+            <p class="fine" style="margin:0">As a document in your task folder, alongside a word-for-word record of every question you were asked and every answer you gave. You can reread it at any time, and so can everyone who works on this later.</p>
+          </div>
+        </div>
+        <div class="mockwrap">
+          <div class="vscode vscode--panel">
+            <div class="vs-title"><span class="dots"><i></i><i></i><i></i></span><span>Claude Code</span></div>
+            <div class="vs-claude vs-claude--solo">
+              <div class="vs-claude-head"><span class="pulse"></span> Claude Code · confirming</div>
+              <div class="vs-chat">
+                <div class="msg msg--ai"><span class="who">Orchestrator</span>
+                  <p><strong>Who uses it</strong><br>Reception staff only. Employees never open it.</p>
+                  <p><strong>What they can do</strong><br>See every item and who holds it · hand an item out to a named person with a due date · take it back and note its condition · open a list of everything overdue.</p>
+                  <p><strong>What must never happen</strong><br>An item that is already out, lost or in repair cannot be handed out again — the system refuses it.</p>
+                  <p><strong>Not part of this</strong><br>No e-mails or alerts. Employees cannot see their own loans. Loans cannot be extended — return it and lend it again.</p>
+                  <p><strong>Scale</strong><br>Under 200 items, a few loans a day.</p>
+                </div>
+                <div class="ask">
+                  <div class="ask-q">Does this describe what you want built?</div>
+                  <div class="ask-opts">
+                    <button class="opt" data-echo="Confirmed. Moving on to investigate your Salesforce setup."><span class="key">1</span><span>Yes, that is it<span class="rec">recommended</span></span></button>
+                    <button class="opt" data-echo="Noted — tell me what to change and I will update the scope."><span class="key">2</span><span>Nearly — one thing is wrong</span></button>
+                  </div>
+                </div>
+                <div class="echo" data-for="rb" hidden></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 ............................................................... -->
+  <section class="slide" data-title="Step 4 — Approve" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow is-you">Step 4 of 6 · your turn · <strong>the important one</strong></p>
+        <h2>You approve the plan</h2>
+        <p class="lede">Three pages, written for you, not for engineers. It has already been attacked by the critic and repaired. <strong>Try the three buttons.</strong></p>
+      </div>
+      <div class="cols cols-side">
+        <div class="stack">
+          <div class="card card--you">
+            <h3>Read this section first: "What it will not do"</h3>
+            <p class="fine" style="margin:0">Every plan states what it deliberately leaves out. That list is where the simplicity was bought. If something on it matters to you, say so <em>now</em> — adding it back later is far more expensive.</p>
+          </div>
+          <div class="card">
+            <h3>"Show me the technical detail" is safe</h3>
+            <p class="fine" style="margin:0">It prints the component list and the reasoning, then returns you to the same question. Looking costs nothing and approves nothing.</p>
+          </div>
+          <div id="approve-result" hidden></div>
+        </div>
+        <div class="mockwrap">
+          <div class="vscode vscode--panel">
+            <div class="vs-title"><span class="dots"><i></i><i></i><i></i></span><span>Claude Code</span></div>
+            <div class="vs-claude vs-claude--solo">
+              <div class="vs-claude-head"><span class="pulse"></span> Claude Code · waiting for you</div>
+              <div class="vs-chat">
+                <div class="msg msg--ai"><span class="who">Orchestrator</span>
+                  <p><strong>What you get</strong><br>A register of every item, a one-click hand-out and return screen, and an overdue list — all inside Salesforce, reachable from its own menu entry.</p>
+                  <p><strong>How it works</strong><br>Reception picks a person and an available item, sets a due date, and hands it over. The item immediately shows as out. On return they note its condition and it becomes available again.</p>
+                  <p><strong>What it will not do</strong><br>No e-mails, no reminders. No employee access. No extending a loan. No history of who <em>asked</em> for something — only what was actually lent.</p>
+                  <p><strong>Risks</strong><br>If reception forgets to record a return, the item stays "out" until someone corrects it by hand.</p>
+                  <p><strong>Size</strong><br>Small. About a day of building.</p>
+                </div>
+                <div class="msg msg--ai" id="tech-detail" hidden><span class="who">Technical detail</span>
+                  <p class="mono">Components (7)
+· Equipment__c — object, 5 fields
+· Loan__c — object, 7 fields + Overdue formula
+· LoanTriggerHandler — refuses double lending
+· equipmentHandout — the screen
+· Equipment Reception — permission set
+· Equipment Loans — app + 2 tabs
+· 3 list views
+
+Decisions: the double-lending check is code
+rather than a configuration rule, because it
+must compare across records. Overdue is a
+calculated field, so nothing runs on a timer.</p></div>
+                <div class="ask">
+                  <div class="ask-q">Ready to build this?</div>
+                  <div class="ask-opts">
+                    <button class="opt" id="btn-approve"><span class="key">1</span><span>Approve — build it<span class="rec">recommended</span></span></button>
+                    <button class="opt" id="btn-change"><span class="key">2</span><span>Change something</span></button>
+                    <button class="opt" id="btn-tech"><span class="key">3</span><span>Show me the technical detail</span></button>
+                  </div>
+                </div>
+                <div class="echo" id="approve-echo" hidden></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 ............................................................... -->
+  <section class="slide" data-title="Step 5 — Build" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Step 5 of 6 · runs by itself</p>
+        <h2>Now it builds — and you can walk away</h2>
+        <p class="lede">From here to the finish there is nothing for you to do. It writes tests, writes the functionality, installs it into your Salesforce, runs the tests for real, and saves its work after every stage.</p>
+      </div>
+      <div class="cols cols-side">
+        <div class="stack">
+          <div class="card">
+            <h3>What those lines mean</h3>
+            <div class="kv" style="margin-top:10px;border:0">
+              <div class="kv-row" style="padding:8px 0"><span class="kv-k">Tests first</span><span class="kv-v">It writes the check before the thing being checked, so it cannot fool itself later.</span></div>
+              <div class="kv-row" style="padding:8px 0"><span class="kv-k">Deploy</span><span class="kv-v">Installing the work into your Salesforce so it actually exists there.</span></div>
+              <div class="kv-row" style="padding:8px 0"><span class="kv-k">Coverage</span><span class="kv-v">How much of the new code the tests actually exercise. Salesforce itself demands a minimum.</span></div>
+              <div class="kv-row" style="padding:8px 0;border:0"><span class="kv-k">Commit &amp; push</span><span class="kv-v">Saving a labelled snapshot of the work where your team can see it. Happens after every stage.</span></div>
+            </div>
+          </div>
+          <div class="note note--go"><strong>A typical small task takes an afternoon.</strong> You will get a message when it is finished or when it needs you.</div>
+        </div>
+        <div class="stack">
+          <div class="btnrow"><button class="btn btn--primary" id="run-build">▶ Watch it build</button></div>
+          <div class="log" id="buildlog" aria-live="polite">
+            <div><span class="t">10:04</span><span class="wp">Package 1 of 4</span> · the register</div>
+            <div><span class="t">10:04</span>writing tests for the equipment register…</div>
+            <div><span class="t">10:09</span>tests written — <span class="ok">failing, as expected</span></div>
+            <div><span class="t">10:11</span>building the register and its fields…</div>
+            <div><span class="t">10:22</span>installing into your Salesforce… <span class="ok">done</span></div>
+            <div><span class="t">10:24</span>running the tests… <span class="ok">8 of 8 passed</span></div>
+            <div><span class="t">10:25</span>saved and shared with your team <span class="ok">✓</span></div>
+            <div><span class="t">10:26</span><span class="wp">Package 2 of 4</span> · the hand-out rule</div>
+            <div><span class="t">10:41</span>lending an item twice is now refused <span class="ok">✓</span></div>
+            <div><span class="t">10:58</span><span class="wp">Package 3 of 4</span> · the reception screen</div>
+            <div><span class="t">11:37</span>screen installed and loading <span class="ok">✓</span></div>
+            <div><span class="t">11:44</span><span class="wp">Package 4 of 4</span> · access and menus</div>
+            <div><span class="t">12:02</span>all tests green · coverage 91% <span class="ok">✓</span></div>
+            <div><span class="t">12:05</span>handing over to the reviewer…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 .............................................................. -->
+  <section class="slide" data-title="Step 6 — Report" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Step 6 of 6 · it reports back</p>
+        <h2>What you get at the end</h2>
+        <p class="lede">The report leads with what changed for your users, in plain language. The technical evidence sits underneath it, for whoever wants it.</p>
+      </div>
+      <div class="cols cols-side">
+        <div class="stack">
+          <div class="card card--go">
+            <h3>Two possible endings</h3>
+            <p style="margin:6px 0 0"><strong>Done</strong> — everything built, tested, reviewed and saved.</p>
+            <p class="fine" style="margin:6px 0 0"><strong>Needs your attention</strong> — it stopped rather than guess. You get a concrete choice with the consequences spelled out. This is not a failure; it is the system refusing to invent an answer to a question only you can settle.</p>
+          </div>
+          <div class="card">
+            <h3>It will always tell you</h3>
+            <ul class="plain" style="margin-top:8px">
+              <li>What a user can now do, and where to find it</li>
+              <li>How it was checked</li>
+              <li>Where the installation instructions and the two guides are</li>
+              <li>Anything you must know before going live</li>
+              <li>Small issues it chose not to fix, so you can decide</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mockwrap">
+          <div class="vscode vscode--panel">
+            <div class="vs-title"><span class="dots"><i></i><i></i><i></i></span><span>Claude Code</span></div>
+            <div class="vs-claude vs-claude--solo">
+              <div class="vs-claude-head"><span class="pulse"></span> Claude Code · finished</div>
+              <div class="vs-chat">
+                <div class="msg msg--ai"><span class="who">Orchestrator · DONE</span>
+                  <p><strong>Reception can now manage equipment loans in Salesforce.</strong> They open <em>Equipment Loans</em> from the app menu, see every item and who holds it, hand an item out with a due date, take it back with a condition note, and open an <em>Overdue</em> list. Lending an item that is already out, lost or in repair is refused with a clear message.</p>
+                  <p><strong>How it was checked</strong><br>38 automated tests, all passing. Code review: approved. Walked through by hand in your practice system: lent a laptop, tried to lend it again — refused; returned it; an item past its due date appeared on the overdue list.</p>
+                  <p><strong>Before this goes live</strong><br>Somebody must give reception staff the new access — it is step 1 of the installation checklist. Nothing else is manual.</p>
+                  <p><strong>Your paperwork</strong><br>Installation checklist, administrator guide and user guide are in your task folder, as Word documents.</p>
+                </div>
+                <div class="tool">▸ 14 saves, all shared with your team <span class="ok">✓</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 .............................................................. -->
+  <section class="slide" data-title="Where things are" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Your paperwork</p>
+        <h2>Everything it writes, and where it lands</h2>
+        <p class="lede">One folder per task, named after your reference number. Nothing is ever written anywhere else. <strong>Click a folder.</strong></p>
+      </div>
+      <div class="explorer">
+        <div class="folders" id="folders">
+          <button class="folder" data-f="request" aria-pressed="true"><span class="ic">▾</span> request</button>
+          <button class="folder" data-f="design" aria-pressed="false"><span class="ic">▸</span> design</button>
+          <button class="folder" data-f="plan" aria-pressed="false"><span class="ic">▸</span> plan</button>
+          <button class="folder" data-f="data" aria-pressed="false"><span class="ic">▸</span> data</button>
+          <button class="folder" data-f="deployment" aria-pressed="false"><span class="ic">▸</span> deployment</button>
+          <button class="folder" data-f="docs" aria-pressed="false"><span class="ic">▸</span> docs</button>
+        </div>
+        <div class="detail" id="folder-detail"></div>
+      </div>
+      <div class="note"><strong>Why so much paperwork?</strong> Because the next person — an administrator, a colleague, you in six months — needs to know not just what was built but what you asked for and why it was built that way. All of it travels with the work.</div>
+    </div>
+  </section>
+
+  <!-- 12 .............................................................. -->
+  <section class="slide" data-title="Your checklist" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow is-you">After it finishes</p>
+        <h2>What you do with the result</h2>
+        <p class="lede">The agent stops at your practice system. It never touches the live one, and it never decides that work is ready to release. That part is yours.</p>
+      </div>
+      <div class="kv">
+        <div class="kv-row"><span class="kv-k">1 · Try it yourself</span><span class="kv-v">Open your practice Salesforce and walk through the thing you asked for, once. Five minutes of clicking tells you more than any report.</span></div>
+        <div class="kv-row"><span class="kv-k">2 · Read the two guides</span><span class="kv-v">The user guide should describe something you recognise. If it does not, something was misunderstood — say so.</span></div>
+        <div class="kv-row"><span class="kv-k">3 · Hand it to your developers</span><span class="kv-v">They review the actual changes and put it through your normal release process. The installation checklist tells them exactly what to move and what to do by hand.</span></div>
+        <div class="kv-row"><span class="kv-k">4 · Decide on the small stuff</span><span class="kv-v">Minor improvements the reviewer suggested but did not make are listed. Raise them as new tasks or let them go.</span></div>
+        <div class="kv-row"><span class="kv-k">5 · Keep the folder</span><span class="kv-v">It is the record of what you asked for and what was agreed. It answers the "why is it like this?" question six months from now.</span></div>
+      </div>
+      <div class="note"><strong>Your normal release checks still apply.</strong> A clean run by the agent does not replace your team's own gates — it gets the work to that gate in good shape.</div>
+    </div>
+  </section>
+
+  <!-- 13 .............................................................. -->
+  <section class="slide" data-title="Jargon" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Translation</p>
+        <h2>Words you will see, in plain English</h2>
+        <p class="lede">You do not need to use any of these. You will see them scroll past, and it helps to know they are ordinary things with intimidating names.</p>
+      </div>
+      <div class="gloss">
+        <details class="term"><summary>Org</summary><p>One Salesforce system. Your company has several: a live one that the business runs on, and practice copies for building things. The agent only ever works in a practice one.</p></details>
+        <details class="term"><summary>Sandbox / practice org</summary><p>A separate copy of Salesforce for trying things. Breaking it affects nobody.</p></details>
+        <details class="term"><summary>Production</summary><p>The live system. The agent refuses to touch it. There is no setting to override that.</p></details>
+        <details class="term"><summary>Deploy</summary><p>Installing the finished work into a Salesforce system so it actually exists there and can be used.</p></details>
+        <details class="term"><summary>Metadata</summary><p>The shape of your Salesforce — the fields, screens, rules and permissions. As opposed to the data, which is the actual records.</p></details>
+        <details class="term"><summary>Object / field</summary><p>An object is a kind of thing you store — an item of equipment, a loan. A field is one piece of information about it — its asset tag, its due date.</p></details>
+        <details class="term"><summary>Apex</summary><p>Salesforce's programming language. Used when a rule is too complex to configure by pointing and clicking — for example, checking whether an item is already out.</p></details>
+        <details class="term"><summary>Flow</summary><p>Automation you build by configuring rather than programming. Preferred where it is enough, because it is easier for an administrator to change later.</p></details>
+        <details class="term"><summary>LWC</summary><p>Lightning Web Component — a custom screen or part of a screen, when the standard Salesforce layouts will not do what you need.</p></details>
+        <details class="term"><summary>Permission set</summary><p>A bundle of access rights you grant to particular people. "Reception staff can use the loan screen" is a permission set.</p></details>
+        <details class="term"><summary>Git · branch · commit · push</summary><p>The system that keeps every version of the work. A <em>branch</em> is your task's own workspace, a <em>commit</em> is a labelled snapshot, and <em>push</em> shares it with your team. The agent does all of this itself.</p></details>
+        <details class="term"><summary>Pull request</summary><p>Formally proposing that your task's work be merged into the team's main version. A human opens it, reviews it, and accepts it.</p></details>
+        <details class="term"><summary>Test coverage</summary><p>How much of the new code is exercised by automated tests. Salesforce refuses to accept work into the live system below a set threshold.</p></details>
+        <details class="term"><summary>Static analysis</summary><p>An automatic inspection for known bad patterns — security holes, inefficiency — without running anything. It runs on every file the agent writes.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 .............................................................. -->
+  <section class="slide" data-title="When it stops" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow is-you">Don't panic</p>
+        <h2>When it stops and asks you something</h2>
+        <p class="lede">The agent is built to stop rather than guess. Every stop arrives as a specific question with options, not an error message. Here are the ones you will actually meet.</p>
+      </div>
+      <div class="kv">
+        <div class="kv-row"><span class="kv-k">"Which Salesforce should I use?"</span><span class="kv-v">Name your practice system. If you accidentally name the live one, it stops dead and will not continue.</span></div>
+        <div class="kv-row"><span class="kv-k">"The document you mentioned isn't there"</span><span class="kv-v">Check the file path, or tell it to carry on without the document.</span></div>
+        <div class="kv-row"><span class="kv-k">"I found a question I can't answer"</span><span class="kv-v">A business decision surfaced during design. Answer it the same way as the interview.</span></div>
+        <div class="kv-row"><span class="kv-k">"Your Salesforce and your team's records disagree"</span><span class="kv-v">Someone changed something directly in Salesforce that is not in the team's version. It will not guess which one is right — tell it.</span></div>
+        <div class="kv-row"><span class="kv-k">"This would delete something"</span><span class="kv-v">Anything irreversible needs you to say yes explicitly. Read it carefully, then decide.</span></div>
+        <div class="kv-row"><span class="kv-k">"The reviewer and the developer disagree"</span><span class="kv-v">Rare. You get both positions in plain language and make the call.</span></div>
+      </div>
+      <div class="cols cols-2">
+        <div class="card"><h3>To carry on</h3><p class="fine" style="margin:0">Just reply in the same chat. It picks up exactly where it stopped.</p></div>
+        <div class="card"><h3>If you closed everything</h3><p class="fine" style="margin:0">Reopen and type the same command with just your task reference. It finds the folder, works out how far it got, and continues.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 .............................................................. -->
+  <section class="slide" data-title="Five rules" hidden>
+    <div class="stack">
+      <div>
+        <p class="eyebrow">Take these away</p>
+        <h2>Five things worth remembering</h2>
+      </div>
+      <div class="journey">
+        <div class="leg is-you">
+          <div class="leg-mark">1</div>
+          <div><h3>Spend your attention on the interview and the approval</h3><p>They are short, and they are the only two places where your judgement cannot be substituted. Everything else is machinery.</p></div>
+        </div>
+        <div class="leg is-you">
+          <div class="leg-mark">2</div>
+          <div><h3>Always read "what it will not do"</h3><p>That paragraph is the whole negotiation. It is where the plan stays small — and where something you needed might be missing.</p></div>
+        </div>
+        <div class="leg is-you">
+          <div class="leg-mark">3</div>
+          <div><h3>Ask for the smallest thing that works</h3><p>Let it add later. Removing something already built is far more expensive than adding to something simple.</p></div>
+        </div>
+        <div class="leg is-you">
+          <div class="leg-mark">4</div>
+          <div><h3>One request, one task, one folder</h3><p>Do not pile a second idea into a running task. Start a new one — they are cheap.</p></div>
+        </div>
+        <div class="leg is-you">
+          <div class="leg-mark">5</div>
+          <div><h3>Never ask it to skip a check</h3><p>If something is blocked, there is a reason worth understanding. It is built to refuse, and that is a feature you are paying for.</p></div>
+        </div>
+      </div>
+      <div class="card card--go">
+        <h3>That is the whole thing</h3>
+        <p style="margin:6px 0 0">You describe the job in your own words, answer some questions about your business, approve a short plan, and come back to working, tested, documented Salesforce. Everything else is someone else's problem — and that someone else does not get tired, skip the tests, or forget to write the guide.</p>
+      </div>
+      <div class="btnrow"><button class="btn" data-go="0">↺ Start again</button></div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="nav" aria-label="Slide navigation">
+  <div class="nav-in">
+    <button class="btn" id="prev">← Back</button>
+    <div class="dots-nav" id="dots"></div>
+    <span class="hint" id="slidename"></span>
+    <button class="btn btn--primary" id="next">Next →</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var youSlides = [0,4,5,6,7,11,13,14];
+  var idx = 0;
+  var cur = document.getElementById('cur');
+  var tot = document.getElementById('tot');
+  var bar = document.getElementById('bar');
+  var dots = document.getElementById('dots');
+  var nameEl = document.getElementById('slidename');
+  var prev = document.getElementById('prev');
+  var next = document.getElementById('next');
+
+  tot.textContent = slides.length;
+
+  slides.forEach(function(s,i){
+    var b = document.createElement('button');
+    b.className = 'dot' + (youSlides.indexOf(i) > -1 ? ' is-you' : '');
+    b.type = 'button';
+    b.setAttribute('aria-label', 'Go to ' + (s.dataset.title || ('slide ' + (i+1))));
+    b.addEventListener('click', function(){ show(i); });
+    dots.appendChild(b);
+  });
+  var dotEls = Array.prototype.slice.call(dots.children);
+
+  function show(i){
+    idx = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function(s,n){ s.hidden = (n !== idx); });
+    dotEls.forEach(function(d,n){ d.setAttribute('aria-current', n === idx ? 'true' : 'false'); });
+    cur.textContent = idx + 1;
+    bar.style.width = (((idx + 1) / slides.length) * 100) + '%';
+    nameEl.textContent = slides[idx].dataset.title || '';
+    prev.disabled = (idx === 0);
+    next.disabled = (idx === slides.length - 1);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  prev.addEventListener('click', function(){ show(idx - 1); });
+  next.addEventListener('click', function(){ show(idx + 1); });
+  document.addEventListener('keydown', function(e){
+    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown'){ show(idx + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ show(idx - 1); }
+    else if (e.key === 'Home'){ show(0); }
+    else if (e.key === 'End'){ show(slides.length - 1); }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-go]'), function(b){
+    b.addEventListener('click', function(){ show(parseInt(b.dataset.go, 10)); });
+  });
+
+  /* ---- slide 4: annotated screen ---- */
+  function wirePins(){
+    var pins = Array.prototype.slice.call(document.querySelectorAll('.pin'));
+    var items = Array.prototype.slice.call(document.querySelectorAll('.legend-item'));
+    function select(n){
+      pins.forEach(function(p){ p.setAttribute('aria-pressed', p.dataset.pin === n ? 'true' : 'false'); });
+      items.forEach(function(it){ it.setAttribute('aria-pressed', it.dataset.pin === n ? 'true' : 'false'); });
+    }
+    pins.concat(items).forEach(function(el){
+      el.addEventListener('click', function(){
+        select(el.getAttribute('aria-pressed') === 'true' ? '' : el.dataset.pin);
+      });
+    });
+  }
+  wirePins();
+
+  /* ---- slide 6 + 7: answering questions ---- */
+  var answered = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.ask'), function(card){
+    var q = card.dataset.q;
+    var opts = Array.prototype.slice.call(card.querySelectorAll('.opt'));
+    opts.forEach(function(o){
+      if (o.id) return; /* approval buttons are wired separately */
+      o.setAttribute('aria-pressed','false');
+      o.addEventListener('click', function(){
+        opts.forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+        o.setAttribute('aria-pressed','true');
+        var echo = card.parentNode.querySelector('.echo[data-for="' + (q || 'rb') + '"]');
+        if (echo){ echo.textContent = '→ written into your scope: ' + o.dataset.echo; echo.hidden = false; }
+        if (q){
+          answered[q] = true;
+          if (Object.keys(answered).length >= 3){
+            var d = document.getElementById('iv-done');
+            if (d) d.hidden = false;
+          }
+        }
+      });
+    });
+  });
+
+  /* ---- slide 8: approval ---- */
+  var echoA = document.getElementById('approve-echo');
+  var resultA = document.getElementById('approve-result');
+  var tech = document.getElementById('tech-detail');
+  function setApproveOpt(el){
+    ['btn-approve','btn-change','btn-tech'].forEach(function(id){
+      var b = document.getElementById(id);
+      if (b) b.setAttribute('aria-pressed', b === el ? 'true' : 'false');
+    });
+  }
+  var ba = document.getElementById('btn-approve');
+  var bc = document.getElementById('btn-change');
+  var bt = document.getElementById('btn-tech');
+  if (ba) ba.addEventListener('click', function(){
+    setApproveOpt(ba);
+    echoA.textContent = '→ approved and recorded. Writing the detailed design, then building.';
+    echoA.hidden = false;
+    resultA.className = 'card card--go';
+    resultA.innerHTML = '<h3>Approved</h3><p class="fine" style="margin:4px 0 0">Your answer is written word-for-word into the plan, so there is a permanent record of what was agreed and when. The build starts immediately — and from here you are not needed again.</p>';
+    resultA.hidden = false;
+  });
+  if (bc) bc.addEventListener('click', function(){
+    setApproveOpt(bc);
+    echoA.textContent = '→ tell me what to change — short interview, then the plan is updated and re-checked.';
+    echoA.hidden = false;
+    resultA.className = 'card card--you';
+    resultA.innerHTML = '<h3>Changing something is normal</h3><p class="fine" style="margin:4px 0 0">You get a short interview about the change only, the plan is updated, and if the change adds or removes a piece it goes back past the critic. Then you are asked to approve again.</p>';
+    resultA.hidden = false;
+  });
+  if (bt) bt.addEventListener('click', function(){
+    setApproveOpt(bt);
+    if (tech) tech.hidden = false;
+    echoA.textContent = '→ showing the technical detail. Nothing is approved by looking.';
+    echoA.hidden = false;
+    resultA.className = 'card';
+    resultA.innerHTML = '<h3>Available, never pushed</h3><p class="fine" style="margin:4px 0 0">Technical detail is always one request away, and never put in front of you unasked. Look at it if it helps you trust the plan; ignore it if it does not.</p>';
+    resultA.hidden = false;
+  });
+
+  /* ---- slide 9: build log ---- */
+  var runBtn = document.getElementById('run-build');
+  var log = document.getElementById('buildlog');
+  if (runBtn && log){
+    var lines = Array.prototype.slice.call(log.children);
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function reveal(all){
+      lines.forEach(function(l,i){
+        if (all){ l.classList.add('in'); return; }
+        setTimeout(function(){ l.classList.add('in'); }, i * 320);
+      });
+    }
+    lines.forEach(function(l){ l.classList.remove('in'); });
+    reveal(reduce);
+    runBtn.addEventListener('click', function(){
+      lines.forEach(function(l){ l.classList.remove('in'); });
+      runBtn.disabled = true;
+      runBtn.textContent = 'building…';
+      reveal(false);
+      setTimeout(function(){
+        runBtn.disabled = false;
+        runBtn.textContent = '↺ Watch it again';
+      }, reduce ? 200 : lines.length * 320 + 400);
+    });
+  }
+
+  /* ---- slide 11: folders ---- */
+  var FOLDERS = {
+    request: {
+      t: 'What you asked for',
+      p: 'agent-tasks/WS-001-equipment-loans/request/',
+      d: 'Your own words, kept exactly as you wrote them. Nothing in here is ever edited by the agent.',
+      l: ['<b>00-initial-prompt</b> — your request, word for word, with the date and which Salesforce it was built in',
+          '<b>01-clarifications</b> — every question you were asked and every answer you gave, verbatim',
+          '<b>02-scope</b> — the scope you confirmed, in business language. This is the agreement.',
+          'A copy of any document you pointed at']
+    },
+    design: {
+      t: 'The thinking',
+      p: 'agent-tasks/WS-001-equipment-loans/design/',
+      d: 'How the solution was arrived at — including the criticism it survived.',
+      l: ['<b>discovery</b> — what was found in your Salesforce before designing anything',
+          '<b>design-brief</b> — <strong>the plan you approved</strong>, as a Word document for reading and a text version for the agents',
+          '<b>critic-report-…</b> — the holes the critic found, and what was done about each',
+          '<b>solution-design</b> — the full technical specification, written only after you approved']
+    },
+    plan: {
+      t: 'The build order',
+      p: 'agent-tasks/WS-001-equipment-loans/plan/',
+      d: 'The work broken into packages and sequenced, so each piece can be built and tested on its own.',
+      l: ['<b>build-plan</b> — the ordered work packages the developer follows, with the checks each must pass']
+    },
+    data: {
+      t: 'Evidence and samples',
+      p: 'agent-tasks/WS-001-equipment-loans/data/',
+      d: 'Optional. Anything the task needed as input or produced as proof that is not a document.',
+      l: ['Sample records, spreadsheets, exported results, screenshots you supplied',
+          'Raw output from test runs and inspections, kept as evidence']
+    },
+    deployment: {
+      t: 'How to install it',
+      p: 'agent-tasks/WS-001-equipment-loans/deployment/',
+      d: 'Written for whoever moves this from your practice system to the live one. Works with whatever release tooling your team uses.',
+      l: ['<b>deployment-manifest</b> — every single piece to move, grouped and in the right order',
+          '<b>pre-deployment-steps</b> — anything that must be done by hand first (only exists if there is something)',
+          '<b>post-deployment-steps</b> — granting access, switching things on, the final check']
+    },
+    docs: {
+      t: 'The guides',
+      p: 'agent-tasks/WS-001-equipment-loans/docs/',
+      d: 'Two Word documents written for two different readers. Hand them over as they are.',
+      l: ['<b>administrator-guide</b> — how to switch it on, grant and remove access, keep an eye on it, fix the common complaints',
+          '<b>user-guide</b> — how to find and use the thing, what the screens say, what the messages mean. No technical words at all.']
+    }
+  };
+  var folderBtns = Array.prototype.slice.call(document.querySelectorAll('.folder'));
+  var detail = document.getElementById('folder-detail');
+  function renderFolder(key){
+    var f = FOLDERS[key];
+    if (!f || !detail) return;
+    folderBtns.forEach(function(b){
+      var on = b.dataset.f === key;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      var ic = b.querySelector('.ic');
+      if (ic) ic.textContent = on ? '▾' : '▸';
+    });
+    detail.innerHTML = '<h3>' + f.t + '</h3><div class="path">' + f.p + '</div><p>' + f.d + '</p><ul>' +
+      f.l.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>';
+  }
+  folderBtns.forEach(function(b){ b.addEventListener('click', function(){ renderFolder(b.dataset.f); }); });
+  renderFolder('request');
+
+  show(0);
+})();
+</script>
+</body>
+</html>
